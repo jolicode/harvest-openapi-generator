@@ -25,7 +25,7 @@ class Extractor
         $this->definitions = [];
         $this->paths = [];
 
-        $crawler = new Crawler(file_get_contents(self::DOMAIN.'/api-v2/'));
+        $crawler = new Crawler(file_get_contents(self::DOMAIN . '/api-v2/'));
         $links = $crawler->filter('a[href^="/api-v2/"][href*="-api/"]')->extract(['href']);
 
         foreach ($links as $link) {
