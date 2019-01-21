@@ -16,7 +16,7 @@ file named `harvest-openapi.yaml`.
 ## I just need the OpenAPI file
 
 You can get the generated file here:
-[https://github.com/jolicode/harvest-openapi-generator/master/generated/harvest-openapi.yaml](https://github.com/jolicode/harvest-openapi-generator/master/generated/harvest-openapi.yaml)
+[https://raw.githubusercontent.com/jolicode/harvest-openapi-generator/master/generated/harvest-openapi.yaml](https://raw.githubusercontent.com/jolicode/harvest-openapi-generator/master/generated/harvest-openapi.yaml)
 
 ## What can I do with this OpenAPI spec?
 
