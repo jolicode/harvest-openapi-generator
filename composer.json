@@ -1,0 +1,27 @@
+{
+    "name": "jolicode/harvest-api-doc-extractor",
+    "description": "Generate a Harvest OpenAPI 2.0 / Swagger specification from the api documentation",
+    "type": "library",
+    "keywords": ["harvestapp", "harvest", "swagger", "openapi"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Xavier Lacot",
+            "email": "xlacot@jolicode.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "JoliCode\\Extractor\\": ""
+        }
+    },
+    "require": {
+        "symfony/console": "^4.2",
+        "symfony/dom-crawler": "^4.2",
+        "symfony/css-selector": "^4.2",
+        "symfony/yaml": "^4.2"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.14"
+    }
+}
