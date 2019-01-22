@@ -323,6 +323,7 @@ class Extractor
     public static function buildOperationId($method, $summary)
     {
         $summary = str_replace([' all ', ' an ', ' a '], ' ', $summary);
+        $summary = str_replace('’s', '', $summary);
 
         return lcfirst(self::camelize($summary));
     }
