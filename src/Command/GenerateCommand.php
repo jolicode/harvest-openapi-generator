@@ -34,7 +34,7 @@ class GenerateCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $extractor = new Extractor();
-        $dumper = new Dumper(__DIR__.'/../generated/harvest-openapi.yaml');
+        $dumper = new Dumper(__DIR__.'/../../generated/harvest-openapi.yaml');
         $dumper->dump($extractor->extract());
     }
 }
