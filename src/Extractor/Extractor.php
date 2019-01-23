@@ -167,7 +167,7 @@ class Extractor
             if (preg_match('/^A (.+) object of the/', $description, $matches)) {
                 $property['objectoftype'] = self::singularize(self::camelize($matches[1]));
             } elseif (preg_match('/(?:([a-zA-Z_]+), )+([a-zA-Z_]+)/', $desc, $matches)) {
-                array_shift($matches);
+                $matches = explode(', ', $matches[0]);
                 $matches = array_flip($matches);
                 array_walk($matches, function (&$item, $key) {
                     $item = ['type' => self::guessFieldType($key)];

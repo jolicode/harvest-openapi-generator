@@ -2412,6 +2412,8 @@ paths:
                 type: object
                 description: 'An object containing the id, group_id, and permalink of the external reference.'
                 properties:
+                  id:
+                    type: integer
                   group_id:
                     type: string
                   permalink:
@@ -2504,6 +2506,8 @@ paths:
                 type: object
                 description: 'An object containing the id, group_id, and permalink of the external reference.'
                 properties:
+                  id:
+                    type: integer
                   group_id:
                     type: string
                   permalink:
@@ -4285,6 +4289,8 @@ definitions:
         type: object
         description: 'An object containing the associated project’s id, name, and code.'
         properties:
+          id:
+            type: integer
           name:
             type: string
           code:
@@ -4552,6 +4558,8 @@ definitions:
         type: object
         description: 'An object containing the expense’s client id, name, and currency.'
         properties:
+          id:
+            type: integer
           name:
             type: string
           currency:
@@ -4560,6 +4568,8 @@ definitions:
         type: object
         description: 'An object containing the expense’s project id, name, and code.'
         properties:
+          id:
+            type: integer
           name:
             type: string
           code:
@@ -4568,6 +4578,10 @@ definitions:
         type: object
         description: 'An object containing the expense’s expense category id, name, unit_price, and unit_name.'
         properties:
+          id:
+            type: integer
+          name:
+            type: string
           unit_price:
             type: string
           unit_name:
@@ -4744,6 +4758,12 @@ definitions:
         type: object
         description: 'An object containing the id, group_id, permalink, service, and service_icon_url of the associated external reference.'
         properties:
+          id:
+            type: integer
+          group_id:
+            type: string
+          permalink:
+            type: string
           service:
             type: string
           service_icon_url:
@@ -4821,6 +4841,8 @@ definitions:
         type: object
         description: 'An object containing the id, name, and code of the associated project.'
         properties:
+          id:
+            type: integer
           name:
             type: string
           code:
@@ -4866,6 +4888,8 @@ definitions:
         type: object
         description: 'An object containing the id, name, and code of the associated project.'
         properties:
+          id:
+            type: integer
           name:
             type: string
           code:
@@ -4911,6 +4935,8 @@ definitions:
         type: object
         description: 'An object containing the project’s client id, name, and currency.'
         properties:
+          id:
+            type: integer
           name:
             type: string
           currency:
@@ -5047,6 +5073,8 @@ definitions:
         type: object
         description: 'An object containing the assigned project id, name, and code.'
         properties:
+          id:
+            type: integer
           name:
             type: string
           code:
