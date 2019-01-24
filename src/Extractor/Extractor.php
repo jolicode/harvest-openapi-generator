@@ -47,6 +47,12 @@ class Extractor
 
         while ($name = array_shift($propertyTexts)) {
             $type = array_shift($propertyTexts);
+
+            if ($name === 'quantity') {
+                // quantitiy properties are sometimes wrongly documented as integer
+                $type = 'float';
+            }
+
             $description = array_shift($propertyTexts);
             $properties[$name] = self::buildDefinitionProperty($name, $type, $description);
         }
@@ -504,6 +510,10 @@ class Extractor
         return $word;
     }
 
+    public static function snakeCase($word) {
+        return strtolower(preg_replace('/[A-Z]/', '_\\0', lcfirst($word)));
+    }
+
     public static function endsWith($haystack, $needle)
     {
         $length = \strlen($needle);
@@ -575,10 +585,11 @@ class Extractor
     private function buildPluralDefinitions()
     {
         foreach ($this->definitions as $name => $definition) {
+            $pluralized = self::pluralize(self::snakeCase($name));
             $this->definitions[self::pluralize($name)] = [
                 'type' => 'object',
                 'required' => [
-                    strtolower(self::pluralize($name)),
+                    $pluralized,
                     'per_page',
                     'total_pages',
                     'total_entries',
@@ -588,7 +599,7 @@ class Extractor
                     'links',
                 ],
                 'properties' => [
-                    strtolower(self::pluralize($name)) => [
+                    $pluralized => [
                         'type' => 'array',
                         'items' => [
                             '$ref' => '#/definitions/'.$name,
@@ -651,7 +662,7 @@ class Extractor
             if (preg_match('/^(GET|POST|PATCH|DELETE) \/v2(\/.*)/', $text, $matches)) {
                 $method = strtolower($matches[1]);
                 $path = preg_replace_callback('/{([a-zA-Z_]+)}/', function ($property) {
-                    return '{'.self::camelize($property[1]).'}';
+                    return '{'.lcfirst(self::camelize($property[1])).'}';
                 }, $matches[2]);
 
                 if (!isset($this->paths[$path])) {
