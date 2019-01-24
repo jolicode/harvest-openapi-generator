@@ -123,7 +123,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/contacts/{ContactId}':
+  '/contacts/{contactId}':
     get:
       summary: 'Retrieve a contact'
       operationId: retrieveContact
@@ -134,7 +134,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ContactId
+          name: contactId
           required: true
           in: path
           type: string
@@ -157,7 +157,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ContactId
+          name: contactId
           required: true
           in: path
           type: string
@@ -214,7 +214,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ContactId
+          name: contactId
           required: true
           in: path
           type: string
@@ -308,7 +308,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/clients/{ClientId}':
+  '/clients/{clientId}':
     get:
       summary: 'Retrieve a client'
       operationId: retrieveClient
@@ -319,7 +319,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ClientId
+          name: clientId
           required: true
           in: path
           type: string
@@ -342,7 +342,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ClientId
+          name: clientId
           required: true
           in: path
           type: string
@@ -385,7 +385,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ClientId
+          name: clientId
           required: true
           in: path
           type: string
@@ -415,7 +415,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/invoices/{InvoiceId}/messages':
+  '/invoices/{invoiceId}/messages':
     get:
       summary: 'List all messages for an invoice'
       operationId: listMessagesForInvoice
@@ -426,7 +426,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
@@ -467,7 +467,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
@@ -491,7 +491,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/invoices/{InvoiceId}/messages/{MessageId}':
+  '/invoices/{invoiceId}/messages/{messageId}':
     delete:
       summary: 'Delete an invoice message'
       operationId: deleteInvoiceMessage
@@ -502,12 +502,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
         -
-          name: MessageId
+          name: messageId
           required: true
           in: path
           type: string
@@ -518,7 +518,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/invoices/{InvoiceId}/payments':
+  '/invoices/{invoiceId}/payments':
     get:
       summary: 'List all payments for an invoice'
       operationId: listPaymentsForInvoice
@@ -529,7 +529,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
@@ -570,7 +570,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
@@ -608,7 +608,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/invoices/{InvoiceId}/payments/{PaymentId}':
+  '/invoices/{invoiceId}/payments/{paymentId}':
     delete:
       summary: 'Delete an invoice payment'
       operationId: deleteInvoicePayment
@@ -619,12 +619,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
         -
-          name: PaymentId
+          name: paymentId
           required: true
           in: path
           type: string
@@ -783,7 +783,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/invoices/{InvoiceId}':
+  '/invoices/{invoiceId}':
     get:
       summary: 'Retrieve an invoice'
       operationId: retrieveInvoice
@@ -794,7 +794,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
@@ -817,7 +817,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
@@ -948,7 +948,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceId
+          name: invoiceId
           required: true
           in: path
           type: string
@@ -1027,7 +1027,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/invoice_item_categories/{InvoiceItemCategoryId}':
+  '/invoice_item_categories/{invoiceItemCategoryId}':
     get:
       summary: 'Retrieve an invoice item category'
       operationId: retrieveInvoiceItemCategory
@@ -1038,7 +1038,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceItemCategoryId
+          name: invoiceItemCategoryId
           required: true
           in: path
           type: string
@@ -1061,7 +1061,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceItemCategoryId
+          name: invoiceItemCategoryId
           required: true
           in: path
           type: string
@@ -1095,7 +1095,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: InvoiceItemCategoryId
+          name: invoiceItemCategoryId
           required: true
           in: path
           type: string
@@ -1106,7 +1106,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/estimates/{EstimateId}/messages':
+  '/estimates/{estimateId}/messages':
     get:
       summary: 'List all messages for an estimate'
       operationId: listMessagesForEstimate
@@ -1117,7 +1117,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateId
+          name: estimateId
           required: true
           in: path
           type: string
@@ -1158,7 +1158,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateId
+          name: estimateId
           required: true
           in: path
           type: string
@@ -1182,7 +1182,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/estimates/{EstimateId}/messages/{MessageId}':
+  '/estimates/{estimateId}/messages/{messageId}':
     delete:
       summary: 'Delete an estimate message'
       operationId: deleteEstimateMessage
@@ -1193,12 +1193,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateId
+          name: estimateId
           required: true
           in: path
           type: string
         -
-          name: MessageId
+          name: messageId
           required: true
           in: path
           type: string
@@ -1383,7 +1383,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/estimates/{EstimateId}':
+  '/estimates/{estimateId}':
     get:
       summary: 'Retrieve an estimate'
       operationId: retrieveEstimate
@@ -1394,7 +1394,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateId
+          name: estimateId
           required: true
           in: path
           type: string
@@ -1417,7 +1417,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateId
+          name: estimateId
           required: true
           in: path
           type: string
@@ -1533,7 +1533,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateId
+          name: estimateId
           required: true
           in: path
           type: string
@@ -1612,7 +1612,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/estimate_item_categories/{EstimateItemCategoryId}':
+  '/estimate_item_categories/{estimateItemCategoryId}':
     get:
       summary: 'Retrieve an estimate item category'
       operationId: retrieveEstimateItemCategory
@@ -1623,7 +1623,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateItemCategoryId
+          name: estimateItemCategoryId
           required: true
           in: path
           type: string
@@ -1646,7 +1646,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateItemCategoryId
+          name: estimateItemCategoryId
           required: true
           in: path
           type: string
@@ -1680,7 +1680,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: EstimateItemCategoryId
+          name: estimateItemCategoryId
           required: true
           in: path
           type: string
@@ -1827,7 +1827,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/expenses/{ExpenseId}':
+  '/expenses/{expenseId}':
     get:
       summary: 'Retrieve an expense'
       operationId: retrieveExpense
@@ -1838,7 +1838,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ExpenseId
+          name: expenseId
           required: true
           in: path
           type: string
@@ -1861,7 +1861,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ExpenseId
+          name: expenseId
           required: true
           in: path
           type: string
@@ -1924,7 +1924,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ExpenseId
+          name: expenseId
           required: true
           in: path
           type: string
@@ -2019,7 +2019,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/expense_categories/{ExpenseCategoryId}':
+  '/expense_categories/{expenseCategoryId}':
     get:
       summary: 'Retrieve an expense category'
       operationId: retrieveExpenseCategory
@@ -2030,7 +2030,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ExpenseCategoryId
+          name: expenseCategoryId
           required: true
           in: path
           type: string
@@ -2053,7 +2053,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ExpenseCategoryId
+          name: expenseCategoryId
           required: true
           in: path
           type: string
@@ -2097,7 +2097,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ExpenseCategoryId
+          name: expenseCategoryId
           required: true
           in: path
           type: string
@@ -2195,7 +2195,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/tasks/{TaskId}':
+  '/tasks/{taskId}':
     get:
       summary: 'Retrieve a task'
       operationId: retrieveTask
@@ -2206,7 +2206,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TaskId
+          name: taskId
           required: true
           in: path
           type: string
@@ -2229,7 +2229,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TaskId
+          name: taskId
           required: true
           in: path
           type: string
@@ -2276,7 +2276,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TaskId
+          name: taskId
           required: true
           in: path
           type: string
@@ -2431,7 +2431,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/time_entries/{TimeEntryId}':
+  '/time_entries/{timeEntryId}':
     get:
       summary: 'Retrieve a time entry'
       operationId: retrieveTimeEntry
@@ -2442,7 +2442,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TimeEntryId
+          name: timeEntryId
           required: true
           in: path
           type: string
@@ -2465,7 +2465,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TimeEntryId
+          name: timeEntryId
           required: true
           in: path
           type: string
@@ -2531,7 +2531,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TimeEntryId
+          name: timeEntryId
           required: true
           in: path
           type: string
@@ -2542,7 +2542,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/time_entries/{TimeEntryId}/external_reference':
+  '/time_entries/{timeEntryId}/external_reference':
     delete:
       summary: 'Delete a time entry’s external reference'
       operationId: deleteTimeEntryExternalReference
@@ -2553,7 +2553,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TimeEntryId
+          name: timeEntryId
           required: true
           in: path
           type: string
@@ -2564,7 +2564,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/time_entries/{TimeEntryId}/restart':
+  '/time_entries/{timeEntryId}/restart':
     patch:
       summary: 'Restart a stopped time entry'
       operationId: restartStoppedTimeEntry
@@ -2575,7 +2575,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TimeEntryId
+          name: timeEntryId
           required: true
           in: path
           type: string
@@ -2586,7 +2586,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/time_entries/{TimeEntryId}/stop':
+  '/time_entries/{timeEntryId}/stop':
     patch:
       summary: 'Stop a running time entry'
       operationId: stopRunningTimeEntry
@@ -2597,7 +2597,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: TimeEntryId
+          name: timeEntryId
           required: true
           in: path
           type: string
@@ -2651,7 +2651,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/projects/{ProjectId}/user_assignments':
+  '/projects/{projectId}/user_assignments':
     get:
       summary: 'List all user assignments for a specific project'
       operationId: listUserAssignmentsForSpecificProject
@@ -2662,7 +2662,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
@@ -2709,7 +2709,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
@@ -2750,7 +2750,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/projects/{ProjectId}/user_assignments/{UserAssignmentId}':
+  '/projects/{projectId}/user_assignments/{userAssignmentId}':
     get:
       summary: 'Retrieve a user assignment'
       operationId: retrieveUserAssignment
@@ -2761,12 +2761,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
         -
-          name: UserAssignmentId
+          name: userAssignmentId
           required: true
           in: path
           type: string
@@ -2789,12 +2789,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
         -
-          name: UserAssignmentId
+          name: userAssignmentId
           required: true
           in: path
           type: string
@@ -2839,12 +2839,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
         -
-          name: UserAssignmentId
+          name: userAssignmentId
           required: true
           in: path
           type: string
@@ -2898,7 +2898,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/projects/{ProjectId}/task_assignments':
+  '/projects/{projectId}/task_assignments':
     get:
       summary: 'List all task assignments for a specific project'
       operationId: listTaskAssignmentsForSpecificProject
@@ -2909,7 +2909,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
@@ -2956,7 +2956,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
@@ -2997,7 +2997,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/projects/{ProjectId}/task_assignments/{TaskAssignmentId}':
+  '/projects/{projectId}/task_assignments/{taskAssignmentId}':
     get:
       summary: 'Retrieve a task assignment'
       operationId: retrieveTaskAssignment
@@ -3008,12 +3008,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
         -
-          name: TaskAssignmentId
+          name: taskAssignmentId
           required: true
           in: path
           type: string
@@ -3036,12 +3036,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
         -
-          name: TaskAssignmentId
+          name: taskAssignmentId
           required: true
           in: path
           type: string
@@ -3086,12 +3086,12 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
         -
-          name: TaskAssignmentId
+          name: taskAssignmentId
           required: true
           in: path
           type: string
@@ -3251,7 +3251,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/projects/{ProjectId}':
+  '/projects/{projectId}':
     get:
       summary: 'Retrieve a project'
       operationId: retrieveProject
@@ -3262,7 +3262,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
@@ -3285,7 +3285,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
@@ -3384,7 +3384,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: ProjectId
+          name: projectId
           required: true
           in: path
           type: string
@@ -3462,7 +3462,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/roles/{RoleId}':
+  '/roles/{roleId}':
     get:
       summary: 'Retrieve a role'
       operationId: retrieveRole
@@ -3473,7 +3473,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: RoleId
+          name: roleId
           required: true
           in: path
           type: string
@@ -3496,7 +3496,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: RoleId
+          name: roleId
           required: true
           in: path
           type: string
@@ -3537,7 +3537,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: RoleId
+          name: roleId
           required: true
           in: path
           type: string
@@ -3548,7 +3548,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/users/{UserId}/project_assignments':
+  '/users/{userId}/project_assignments':
     get:
       summary: 'List all project assignments'
       operationId: listProjectAssignments
@@ -3559,7 +3559,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: UserId
+          name: userId
           required: true
           in: path
           type: string
@@ -3768,7 +3768,7 @@ paths:
           description: 'error payload'
           schema:
             $ref: '#/definitions/Error'
-  '/users/{UserId}':
+  '/users/{userId}':
     get:
       summary: 'Retrieve a user'
       operationId: retrieveUser
@@ -3779,7 +3779,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: UserId
+          name: userId
           required: true
           in: path
           type: string
@@ -3802,7 +3802,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: UserId
+          name: userId
           required: true
           in: path
           type: string
@@ -3890,7 +3890,7 @@ paths:
           AccountAuth: []
       parameters:
         -
-          name: UserId
+          name: userId
           required: true
           in: path
           type: string
@@ -4302,9 +4302,9 @@ definitions:
         type: string
         description: 'Text description of the line item.'
       quantity:
-        type: integer
+        type: number
         description: 'The unit quantity of the item.'
-        format: int32
+        format: float
       unit_price:
         type: number
         description: 'The individual price per unit.'
@@ -4512,9 +4512,9 @@ definitions:
         type: string
         description: 'Text description of the line item.'
       quantity:
-        type: integer
+        type: number
         description: 'The unit quantity of the item.'
-        format: int32
+        format: float
       unit_price:
         type: number
         description: 'The individual price per unit.'
@@ -5278,7 +5278,7 @@ definitions:
   InvoiceMessages:
     type: object
     required:
-      - invoicemessages
+      - invoice_messages
       - per_page
       - total_pages
       - total_entries
@@ -5287,7 +5287,7 @@ definitions:
       - page
       - links
     properties:
-      invoicemessages:
+      invoice_messages:
         type: array
         items:
           $ref: '#/definitions/InvoiceMessage'
@@ -5314,7 +5314,7 @@ definitions:
   InvoiceMessageRecipients:
     type: object
     required:
-      - invoicemessagerecipients
+      - invoice_message_recipients
       - per_page
       - total_pages
       - total_entries
@@ -5323,7 +5323,7 @@ definitions:
       - page
       - links
     properties:
-      invoicemessagerecipients:
+      invoice_message_recipients:
         type: array
         items:
           $ref: '#/definitions/InvoiceMessageRecipient'
@@ -5350,7 +5350,7 @@ definitions:
   InvoicePayments:
     type: object
     required:
-      - invoicepayments
+      - invoice_payments
       - per_page
       - total_pages
       - total_entries
@@ -5359,7 +5359,7 @@ definitions:
       - page
       - links
     properties:
-      invoicepayments:
+      invoice_payments:
         type: array
         items:
           $ref: '#/definitions/InvoicePayment'
@@ -5422,7 +5422,7 @@ definitions:
   InvoiceLineItems:
     type: object
     required:
-      - invoicelineitems
+      - invoice_line_items
       - per_page
       - total_pages
       - total_entries
@@ -5431,7 +5431,7 @@ definitions:
       - page
       - links
     properties:
-      invoicelineitems:
+      invoice_line_items:
         type: array
         items:
           $ref: '#/definitions/InvoiceLineItem'
@@ -5458,7 +5458,7 @@ definitions:
   InvoiceItemCategories:
     type: object
     required:
-      - invoiceitemcategories
+      - invoice_item_categories
       - per_page
       - total_pages
       - total_entries
@@ -5467,7 +5467,7 @@ definitions:
       - page
       - links
     properties:
-      invoiceitemcategories:
+      invoice_item_categories:
         type: array
         items:
           $ref: '#/definitions/InvoiceItemCategory'
@@ -5494,7 +5494,7 @@ definitions:
   EstimateMessages:
     type: object
     required:
-      - estimatemessages
+      - estimate_messages
       - per_page
       - total_pages
       - total_entries
@@ -5503,7 +5503,7 @@ definitions:
       - page
       - links
     properties:
-      estimatemessages:
+      estimate_messages:
         type: array
         items:
           $ref: '#/definitions/EstimateMessage'
@@ -5530,7 +5530,7 @@ definitions:
   EstimateMessageRecipients:
     type: object
     required:
-      - estimatemessagerecipients
+      - estimate_message_recipients
       - per_page
       - total_pages
       - total_entries
@@ -5539,7 +5539,7 @@ definitions:
       - page
       - links
     properties:
-      estimatemessagerecipients:
+      estimate_message_recipients:
         type: array
         items:
           $ref: '#/definitions/EstimateMessageRecipient'
@@ -5602,7 +5602,7 @@ definitions:
   EstimateLineItems:
     type: object
     required:
-      - estimatelineitems
+      - estimate_line_items
       - per_page
       - total_pages
       - total_entries
@@ -5611,7 +5611,7 @@ definitions:
       - page
       - links
     properties:
-      estimatelineitems:
+      estimate_line_items:
         type: array
         items:
           $ref: '#/definitions/EstimateLineItem'
@@ -5638,7 +5638,7 @@ definitions:
   EstimateItemCategories:
     type: object
     required:
-      - estimateitemcategories
+      - estimate_item_categories
       - per_page
       - total_pages
       - total_entries
@@ -5647,7 +5647,7 @@ definitions:
       - page
       - links
     properties:
-      estimateitemcategories:
+      estimate_item_categories:
         type: array
         items:
           $ref: '#/definitions/EstimateItemCategory'
@@ -5710,7 +5710,7 @@ definitions:
   ExpenseCategories:
     type: object
     required:
-      - expensecategories
+      - expense_categories
       - per_page
       - total_pages
       - total_entries
@@ -5719,7 +5719,7 @@ definitions:
       - page
       - links
     properties:
-      expensecategories:
+      expense_categories:
         type: array
         items:
           $ref: '#/definitions/ExpenseCategory'
@@ -5782,7 +5782,7 @@ definitions:
   TimeEntries:
     type: object
     required:
-      - timeentries
+      - time_entries
       - per_page
       - total_pages
       - total_entries
@@ -5791,7 +5791,7 @@ definitions:
       - page
       - links
     properties:
-      timeentries:
+      time_entries:
         type: array
         items:
           $ref: '#/definitions/TimeEntry'
@@ -5818,7 +5818,7 @@ definitions:
   UserAssignments:
     type: object
     required:
-      - userassignments
+      - user_assignments
       - per_page
       - total_pages
       - total_entries
@@ -5827,7 +5827,7 @@ definitions:
       - page
       - links
     properties:
-      userassignments:
+      user_assignments:
         type: array
         items:
           $ref: '#/definitions/UserAssignment'
@@ -5854,7 +5854,7 @@ definitions:
   TaskAssignments:
     type: object
     required:
-      - taskassignments
+      - task_assignments
       - per_page
       - total_pages
       - total_entries
@@ -5863,7 +5863,7 @@ definitions:
       - page
       - links
     properties:
-      taskassignments:
+      task_assignments:
         type: array
         items:
           $ref: '#/definitions/TaskAssignment'
@@ -5962,7 +5962,7 @@ definitions:
   ProjectAssignments:
     type: object
     required:
-      - projectassignments
+      - project_assignments
       - per_page
       - total_pages
       - total_entries
@@ -5971,7 +5971,7 @@ definitions:
       - page
       - links
     properties:
-      projectassignments:
+      project_assignments:
         type: array
         items:
           $ref: '#/definitions/ProjectAssignment'
