@@ -444,6 +444,10 @@ class Extractor
             }
 
             if (preg_match('/^List all ([a-zA-Z ]+) for an? ([a-zA-Z]+)/', $summary, $matches)) {
+                if ('specific' === $matches[2]) {
+                    return '#/definitions/'.self::camelize($matches[1]);
+                }
+
                 return '#/definitions/'.self::camelize($matches[2].' '.$matches[1]);
             }
 
@@ -458,14 +462,6 @@ class Extractor
 
         if ('#/definitions/TimeEntryViaStartAndEndTime' === $result) {
             $result = '#/definitions/TimeEntry';
-        }
-
-        if ('#/definitions/SpecificUserAssignments' === $result) {
-            $result = '#/definitions/UserAssignments';
-        }
-
-        if ('#/definitions/SpecificTaskAssignments' === $result) {
-            $result = '#/definitions/TaskAssignments';
         }
 
         if ('#/definitions/ProjectAssignmentsForTheCurrentlyAuthenticatedUser' === $result) {

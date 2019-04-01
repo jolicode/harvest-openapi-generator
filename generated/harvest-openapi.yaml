@@ -3585,7 +3585,7 @@ paths:
         200:
           description: 'List all billable rates for a specific user'
           schema:
-            $ref: '#/definitions/SpecificBillableRates'
+            $ref: '#/definitions/BillableRates'
         default:
           description: 'error payload'
           schema:
@@ -3691,7 +3691,7 @@ paths:
         200:
           description: 'List all cost rates for a specific user'
           schema:
-            $ref: '#/definitions/SpecificCostRates'
+            $ref: '#/definitions/CostRates'
         default:
           description: 'error payload'
           schema:
