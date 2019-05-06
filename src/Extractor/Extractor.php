@@ -192,7 +192,7 @@ class Extractor
         return $property;
     }
 
-    public function buildPath($path, $method, $node)
+    public function buildPath($url, $path, $method, $node)
     {
         $description = [];
         $parentNode = $node->parents()->filter('.highlighter-rouge')->first();
@@ -200,6 +200,7 @@ class Extractor
         foreach ($parentNode->previousAll() as $previous) {
             if ('h2' === $previous->tagName) {
                 $summary = $previous->textContent;
+                $summaryId = $previous->getAttribute('id');
                 break;
             }
 
@@ -233,6 +234,10 @@ class Extractor
             'summary' => $summary,
             'operationId' => self::buildOperationId($method, $summary),
             'description' => implode("\n\n", array_reverse($description)),
+            'externalDocs' => [
+                'description' => $summary,
+                'url' => $url.'#'.$summaryId,
+            ],
             'security' => [
                 [
                     'BearerAuth' => [],
@@ -637,11 +642,15 @@ class Extractor
     {
         $crawler = new Crawler(file_get_contents($url));
 
-        $crawler->filter('h2[id^="the-"][id$="-object"]')->each(function (Crawler $node, $i) {
+        $crawler->filter('h2[id^="the-"][id$="-object"]')->each(function (Crawler $node, $i) use ($url) {
             if (preg_match('/^the-(.+)-object$/', $node->attr('id'), $matches)) {
                 $definitionName = self::camelize($matches[1]);
                 $this->definitions[$definitionName] = [
                     'type' => 'object',
+                    'externalDocs' => [
+                        'description' => $matches[1],
+                        'url' => $url.'#'.$node->attr('id'),
+                    ],
                     'properties' => self::buildDefinitionProperties($node->nextAll()
                         ->first()
                         ->filter('tbody tr td')
@@ -652,7 +661,7 @@ class Extractor
             }
         });
 
-        $crawler->filter('div.highlighter-rouge pre.highlight code')->each(function (Crawler $node, $i) {
+        $crawler->filter('div.highlighter-rouge pre.highlight code')->each(function (Crawler $node, $i) use ($url) {
             $text = trim($node->text());
 
             if (preg_match('/^(GET|POST|PATCH|DELETE) \/v2(\/.*)/', $text, $matches)) {
@@ -665,7 +674,7 @@ class Extractor
                     $this->paths[$path] = [];
                 }
 
-                $this->paths[$path][$method] = self::buildPath($path, $method, $node);
+                $this->paths[$path][$method] = self::buildPath($url, $path, $method, $node);
             }
         });
     }
