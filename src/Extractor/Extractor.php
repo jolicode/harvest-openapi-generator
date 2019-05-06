@@ -48,7 +48,7 @@ class Extractor
         while ($name = array_shift($propertyTexts)) {
             $type = array_shift($propertyTexts);
 
-            if ($name === 'quantity') {
+            if ('quantity' === $name) {
                 // quantitiy properties are sometimes wrongly documented as integer
                 $type = 'float';
             }
@@ -515,7 +515,8 @@ class Extractor
         return $word;
     }
 
-    public static function snakeCase($word) {
+    public static function snakeCase($word)
+    {
         return strtolower(preg_replace('/[A-Z]/', '_\\0', lcfirst($word)));
     }
 
