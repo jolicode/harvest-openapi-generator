@@ -175,8 +175,8 @@ class Extractor
             } elseif (preg_match('/(?:([a-zA-Z_]+), )+([a-zA-Z_]+)/', $desc, $matches)) {
                 $matches = explode(', ', $matches[0]);
                 $matches = array_flip($matches);
-                array_walk($matches, function (&$item, $key) {
-                    $item = ['type' => self::guessFieldType($key)];
+                array_walk($matches, function (&$item, $key) use ($name) {
+                    $item = ['type' => self::guessFieldType($key, $name)];
                 });
 
                 $property['properties'] = $matches;
@@ -424,9 +424,13 @@ class Extractor
         return $format;
     }
 
-    public static function guessFieldType($name)
+    public static function guessFieldType($name, $objectName = null)
     {
         if ('id' === $name) {
+            if ('external_reference' === $objectName) {
+                return 'string';
+            }
+
             return 'integer';
         }
 

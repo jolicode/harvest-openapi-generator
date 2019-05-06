@@ -2584,7 +2584,7 @@ paths:
                 description: 'An object containing the id, group_id, and permalink of the external reference.'
                 properties:
                   id:
-                    type: integer
+                    type: string
                   group_id:
                     type: string
                   permalink:
@@ -2684,7 +2684,7 @@ paths:
                 description: 'An object containing the id, group_id, and permalink of the external reference.'
                 properties:
                   id:
-                    type: integer
+                    type: string
                   group_id:
                     type: string
                   permalink:
@@ -5340,7 +5340,7 @@ definitions:
         description: 'An object containing the id, group_id, permalink, service, and service_icon_url of the associated external reference.'
         properties:
           id:
-            type: integer
+            type: string
           group_id:
             type: string
           permalink:
