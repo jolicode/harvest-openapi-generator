@@ -443,7 +443,7 @@ class Extractor
                 return '#/definitions/'.self::camelize($matches[1]);
             }
 
-            if (preg_match('/^List all ([a-zA-Z ]+) for an? ([a-zA-Z]+)/', $summary, $matches)) {
+            if (preg_match('/^List (?:all|active) ([a-zA-Z ]+) for an? ([a-zA-Z]+)/', $summary, $matches)) {
                 if ('specific' === $matches[2]) {
                     return '#/definitions/'.self::camelize($matches[1]);
                 }
@@ -451,7 +451,7 @@ class Extractor
                 return '#/definitions/'.self::camelize($matches[2].' '.$matches[1]);
             }
 
-            if (preg_match('/^List all ([a-zA-Z ]+)/', $summary, $matches)) {
+            if (preg_match('/^List (?:all|active) ([a-zA-Z ]+)/', $summary, $matches)) {
                 return '#/definitions/'.self::camelize($matches[1]);
             }
 

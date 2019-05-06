@@ -2612,12 +2612,18 @@ paths:
     get:
       summary: 'List all user assignments'
       operationId: listUserAssignments
-      description: "Returns a list of your user assignments. The user assignments are returned sorted by creation date, with the most recently created user assignments appearing first.\n\nThe response contains an object with a user_assignments property that contains an array of up to per_page user assignments. Each entry in the array is a separate user assignment object. If no more user assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your user assignments."
+      description: "Returns a list of your projects user assignments, active and archived. The user assignments are returned sorted by creation date, with the most recently created user assignments appearing first.\n\nThe response contains an object with a user_assignments property that contains an array of up to per_page user assignments. Each entry in the array is a separate user assignment object. If no more user assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your user assignments."
       security:
         -
           BearerAuth: []
           AccountAuth: []
       parameters:
+        -
+          name: user_id
+          description: 'Only return user assignments belonging to the user with the given ID.'
+          required: false
+          in: query
+          type: integer
         -
           name: is_active
           description: 'Pass true to only return active user assignments and false to return inactive user assignments.'
@@ -2655,7 +2661,7 @@ paths:
     get:
       summary: 'List all user assignments for a specific project'
       operationId: listUserAssignmentsForSpecificProject
-      description: "Returns a list of your user assignments for the project identified by PROJECT_ID. The user assignments are returned sorted by creation date, with the most recently created user assignments appearing first.\n\nThe response contains an object with a user_assignments property that contains an array of up to per_page user assignments. Each entry in the array is a separate user assignment object. If no more user assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your user assignments."
+      description: "Returns a list of user assignments for the project identified by PROJECT_ID. The user assignments are returned sorted by creation date, with the most recently created user assignments appearing first.\n\nThe response contains an object with a user_assignments property that contains an array of up to per_page user assignments. Each entry in the array is a separate user assignment object. If no more user assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your user assignments."
       security:
         -
           BearerAuth: []
@@ -2666,6 +2672,12 @@ paths:
           required: true
           in: path
           type: string
+        -
+          name: user_id
+          description: 'Only return user assignments belonging to the user with the given ID.'
+          required: false
+          in: query
+          type: integer
         -
           name: is_active
           description: 'Pass true to only return active user assignments and false to return inactive user assignments.'
@@ -3768,9 +3780,9 @@ paths:
             $ref: '#/definitions/Error'
   '/users/{userId}/project_assignments':
     get:
-      summary: 'List all project assignments'
-      operationId: listProjectAssignments
-      description: "Returns a list of your project assignments for the user identified by USER_ID. The project assignments are returned sorted by creation date, with the most recently created project assignments appearing first.\n\nThe response contains an object with a project_assignments property that contains an array of up to per_page project assignments. Each entry in the array is a separate project assignment object. If no more project assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your project assignments."
+      summary: 'List active project assignments'
+      operationId: listActiveProjectAssignments
+      description: "Returns a list of active project assignments for the user identified by USER_ID. The project assignments are returned sorted by creation date, with the most recently created project assignments appearing first.\n\nThe response contains an object with a project_assignments property that contains an array of up to per_page project assignments. Each entry in the array is a separate project assignment object. If no more project assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your project assignments."
       security:
         -
           BearerAuth: []
@@ -3801,7 +3813,7 @@ paths:
           type: integer
       responses:
         200:
-          description: 'List all project assignments'
+          description: 'List active project assignments'
           schema:
             $ref: '#/definitions/ProjectAssignments'
         default:
@@ -3810,9 +3822,9 @@ paths:
             $ref: '#/definitions/Error'
   /users/me/project_assignments:
     get:
-      summary: 'List all project assignments for the currently authenticated user'
-      operationId: listProjectAssignmentsForTheCurrentlyAuthenticatedUser
-      description: "Returns a list of your project assignments for the currently authenticated user. The project assignments are returned sorted by creation date, with the most recently created project assignments appearing first.\n\nThe response contains an object with a project_assignments property that contains an array of up to per_page project assignments. Each entry in the array is a separate project assignment object. If no more project assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your project assignments."
+      summary: 'List active project assignments for the currently authenticated user'
+      operationId: listActiveProjectAssignmentsForTheCurrentlyAuthenticatedUser
+      description: "Returns a list of your active project assignments for the currently authenticated user. The project assignments are returned sorted by creation date, with the most recently created project assignments appearing first.\n\nThe response contains an object with a project_assignments property that contains an array of up to per_page project assignments. Each entry in the array is a separate project assignment object. If no more project assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your project assignments."
       security:
         -
           BearerAuth: []
@@ -3832,7 +3844,7 @@ paths:
           type: integer
       responses:
         200:
-          description: 'List all project assignments for the currently authenticated user'
+          description: 'List active project assignments for the currently authenticated user'
           schema:
             $ref: '#/definitions/ProjectAssignments'
         default:
