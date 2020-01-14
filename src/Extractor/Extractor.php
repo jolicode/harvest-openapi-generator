@@ -281,6 +281,10 @@ class Extractor
 
         while (\count($explicitParameters) > 0) {
             foreach ($explicitParametersColumns as $columnName) {
+                if ($columnName === 'attribute') {
+                    $columnName = 'parameter';
+                }
+
                 $$columnName = array_shift($explicitParameters);
             }
 
