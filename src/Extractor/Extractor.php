@@ -281,7 +281,7 @@ class Extractor
 
         while (\count($explicitParameters) > 0) {
             foreach ($explicitParametersColumns as $columnName) {
-                if ($columnName === 'attribute') {
+                if ('attribute' === $columnName) {
                     $columnName = 'parameter';
                 }
 
@@ -468,7 +468,7 @@ class Extractor
                 return '#/definitions/'.self::camelize($matches[1]);
             }
 
-            if ($summary === 'Retrieve the currently authenticated user') {
+            if ('Retrieve the currently authenticated user' === $summary) {
                 return '#/definitions/User';
             }
 
