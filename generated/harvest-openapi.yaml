@@ -4321,6 +4321,8 @@ paths:
       responses:
         200:
           description: 'Retrieve the currently authenticated user'
+          schema:
+            $ref: '#/definitions/User'
         default:
           description: 'error payload'
           schema:

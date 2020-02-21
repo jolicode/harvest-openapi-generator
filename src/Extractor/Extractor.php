@@ -468,6 +468,10 @@ class Extractor
                 return '#/definitions/'.self::camelize($matches[1]);
             }
 
+            if ($summary === 'Retrieve the currently authenticated user') {
+                return '#/definitions/User';
+            }
+
             return null;
         };
 
