@@ -281,7 +281,7 @@ class Extractor
 
         while (\count($explicitParameters) > 0) {
             foreach ($explicitParametersColumns as $columnName) {
-                if ($columnName === 'attribute') {
+                if ('attribute' === $columnName) {
                     $columnName = 'parameter';
                 }
 
@@ -466,6 +466,10 @@ class Extractor
 
             if (preg_match('/^List (?:all|active) ([a-zA-Z ]+)/', $summary, $matches)) {
                 return '#/definitions/'.self::camelize($matches[1]);
+            }
+
+            if ('Retrieve the currently authenticated user' === $summary) {
+                return '#/definitions/User';
             }
 
             return null;
