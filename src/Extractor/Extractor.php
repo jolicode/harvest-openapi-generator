@@ -192,7 +192,7 @@ class Extractor
         return $property;
     }
 
-    public function buildPath($url, $path, $method, $node)
+    public function buildPath($url, $path, $method, $node, $title)
     {
         $description = [];
         $parentNode = $node->parents()->filter('.highlighter-rouge')->first();
@@ -245,7 +245,7 @@ class Extractor
                 ],
             ],
             'parameters' => self::buildPathParameters($method, $pathParameters, $explicitParameters, $explicitParametersColumns),
-            'responses' => self::buildPathResponse($method, $summary),
+            'responses' => self::buildPathResponse($method, $summary, $title),
         ];
     }
 
@@ -258,7 +258,7 @@ class Extractor
         }
 
         if (\count($explicitParameters) > 0) {
-            if (in_array($method, ['patch', 'post'])) {
+            if (\in_array($method, ['patch', 'post'], true)) {
                 $parameters[] = self::buildPathBodyParameter($explicitParameters, $explicitParametersColumns);
             } else {
                 while (\count($explicitParameters) > 0) {
@@ -331,7 +331,7 @@ class Extractor
         return [
             'name' => $name,
             'description' => $description,
-            'required' => ($required === 'required'),
+            'required' => ('required' === $required),
             'in' => 'query',
             'type' => self::convertType($type),
         ];
@@ -345,12 +345,12 @@ class Extractor
         return lcfirst(self::camelize($summary));
     }
 
-    public static function buildPathResponse($method, $summary)
+    public static function buildPathResponse($method, $summary, $title)
     {
         $successResponse = [
             'description' => $summary,
         ];
-        $successResponseSchema = self::guessPathResponseSchema($summary);
+        $successResponseSchema = self::guessPathResponseSchema($summary, $title);
 
         if ($successResponseSchema) {
             $successResponse['schema'] = [
@@ -443,9 +443,9 @@ class Extractor
         return 'string';
     }
 
-    public static function guessPathResponseSchema($summary)
+    public static function guessPathResponseSchema($summary, $title)
     {
-        $guesser = function ($summary) {
+        $guesser = function ($summary) use ($title) {
             if (preg_match('/^Create an? ([a-zA-Z ]+)/', $summary, $matches)) {
                 return '#/definitions/'.self::camelize($matches[1]);
             }
@@ -468,6 +468,10 @@ class Extractor
 
             if (preg_match('/^List (?:all|active) ([a-zA-Z ]+)/', $summary, $matches)) {
                 return '#/definitions/'.self::camelize($matches[1]);
+            }
+
+            if (preg_match('/^([a-zA-Z ]+) Report/', $summary)) {
+                return '#/definitions/'.$title.'Result';
             }
 
             if ('Retrieve the currently authenticated user' === $summary) {
@@ -507,6 +511,10 @@ class Extractor
     {
         if (self::endsWith($word, 'y')) {
             return substr($word, 0, \strlen($word) - 1).'ies';
+        }
+
+        if (self::endsWith($word, 'result')) {
+            return 'results';
         }
 
         return $word.'s';
@@ -657,9 +665,17 @@ class Extractor
     {
         $crawler = new Crawler(file_get_contents($url));
 
-        $crawler->filter('h2[id^="the-"][id$="-object"]')->each(function (Crawler $node, $i) use ($url) {
+        $title = trim($crawler->filter('h1')->text());
+
+        if (preg_match('/^([a-zA-Z ]+) Report(s)?/', $title)) {
+            $title = self::camelize($title);
+        } else {
+            $title = '';
+        }
+
+        $crawler->filter('h2[id^="the-"][id$="-object"]')->each(function (Crawler $node, $i) use ($url, $title) {
             if (preg_match('/^the-(.+)-object$/', $node->attr('id'), $matches)) {
-                $definitionName = self::camelize($matches[1]);
+                $definitionName = $title.self::camelize($matches[1]);
                 $this->definitions[$definitionName] = [
                     'type' => 'object',
                     'externalDocs' => [
@@ -676,7 +692,7 @@ class Extractor
             }
         });
 
-        $crawler->filter('div.highlighter-rouge pre.highlight code')->each(function (Crawler $node, $i) use ($url) {
+        $crawler->filter('div.highlighter-rouge pre.highlight code')->each(function (Crawler $node, $i) use ($url, $title) {
             $text = trim($node->text());
 
             if (preg_match('/^(GET|POST|PATCH|DELETE) \/v2(\/.*)/', $text, $matches)) {
@@ -689,7 +705,7 @@ class Extractor
                     $this->paths[$path] = [];
                 }
 
-                $this->paths[$path][$method] = self::buildPath($url, $path, $method, $node);
+                $this->paths[$path][$method] = self::buildPath($url, $path, $method, $node, $title);
             }
         });
     }
