@@ -471,7 +471,7 @@ class Extractor
             }
 
             if (preg_match('/^([a-zA-Z ]+) Report/', $summary)) {
-                return '#/definitions/'.$title.'Result';
+                return '#/definitions/'.$title.'Results';
             }
 
             if ('Retrieve the currently authenticated user' === $summary) {
