@@ -258,15 +258,17 @@ class Extractor
         }
 
         if (\count($explicitParameters) > 0) {
-            if (4 === \count($explicitParametersColumns) || 'patch' === $method) {
+            if (in_array($method, ['patch', 'post'])) {
                 $parameters[] = self::buildPathBodyParameter($explicitParameters, $explicitParametersColumns);
-            } elseif (3 === \count($explicitParametersColumns)) {
+            } else {
                 while (\count($explicitParameters) > 0) {
+                    $required = false;
+
                     foreach ($explicitParametersColumns as $columnName) {
                         $$columnName = array_shift($explicitParameters);
                     }
 
-                    $parameters[] = self::buildPathQueryParameter($parameter, $type, $description);
+                    $parameters[] = self::buildPathQueryParameter($parameter, $type, $description, $required);
                 }
             }
         }
@@ -324,12 +326,12 @@ class Extractor
         ];
     }
 
-    public static function buildPathQueryParameter($name, $type, $description)
+    public static function buildPathQueryParameter($name, $type, $description, $required)
     {
         return [
             'name' => $name,
             'description' => $description,
-            'required' => false,
+            'required' => ($required === 'required'),
             'in' => 'query',
             'type' => self::convertType($type),
         ];
