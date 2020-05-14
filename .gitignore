@@ -5,5 +5,8 @@ composer.phar
 # CS
 .php_cs.cache
 
+# Downloaded files
+var
+
 # Dependencies
 vendor
