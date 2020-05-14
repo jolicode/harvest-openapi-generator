@@ -35,7 +35,11 @@ class Extractor
         $this->buildPluralDefinitions();
         $this->buildItemsTypes();
 
+        array_map('ksort', $this->paths);
+        ksort($this->paths);
+
         $this->printUnknownDefinitions($this->paths);
+        $this->printOperationsIdList($this->paths);
 
         return [
             'definitions' => $this->definitions,
@@ -751,6 +755,31 @@ class Extractor
         }
 
         return substr($haystack, -$length) === $needle;
+    }
+
+    private function printOperationsIdList()
+    {
+        $operations = [];
+
+        foreach ($this->paths as $pathName => $path) {
+            $familyName = ucwords(str_replace('_', ' ', explode('/', $pathName)[1]));
+
+            if (!isset($operations[$familyName])) {
+                $operations[$familyName] = [];
+            }
+
+            foreach ($path as $methodName => $operation) {
+                $operations[$familyName][] = $operation['operationId'];
+            }
+        }
+
+        foreach ($operations as $family => $familyOperations) {
+            echo " * $family\n";
+
+            foreach ($familyOperations as $operation) {
+                echo "   * $operation\n";
+            }
+        }
     }
 
     private function printUnknownDefinitions(array $items)
