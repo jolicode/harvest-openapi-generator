@@ -530,12 +530,12 @@ paths:
           schema:
             $ref: '#/definitions/Error'
     post:
-      summary: 'Mark an open invoice as a draft'
-      operationId: markOpenInvoiceAsDraft
-      description: 'Creates a new invoice message object and marks an open invoice as a draft. Returns an invoice message object and a 201 Created response code if the call succeeded.'
+      summary: 'Create an invoice message or change invoice status'
+      operationId: createInvoiceMessage
+      description: 'Creates a new invoice message object. Returns an invoice message object and a 201 Created response code if the call succeeded.'
       externalDocs:
-        description: 'Mark an open invoice as a draft'
-        url: 'https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-messages/#mark-an-open-invoice-as-a-draft'
+        description: 'Create an invoice message'
+        url: 'https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-messages/#create-an-invoice-message'
       security:
         -
           BearerAuth: []
@@ -556,12 +556,47 @@ paths:
             properties:
               event_type:
                 type: string
-                description: 'Pass “draft” to mark the invoice as a draft.'
+                description: 'If provided, runs an event against the invoice. Options: close, draft, re-open, or send.'
+              recipients:
+                type: array
+                description: 'Array of recipient parameters. See below for details.'
+                items:
+                  type: object
+                  required:
+                    - email
+                  properties:
+                    name:
+                      description: 'Name of the message recipient.'
+                      type: string
+                    email:
+                      description: 'Email of the message recipient.'
+                      type: string
+                      format: email
+              subject:
+                type: string
+                description: 'The message subject.'
+              body:
+                type: string
+                description: 'The message body.'
+              include_link_to_client_invoice:
+                type: boolean
+                description: 'If set to true, a link to the client invoice URL will be included in the message email. Defaults to false. Ignored when thank_you is set to true.'
+              attach_pdf:
+                type: boolean
+                description: 'If set to true, a PDF of the invoice will be attached to the message email. Defaults to false.'
+              send_me_a_copy:
+                type: boolean
+                description: 'If set to true, a copy of the message email will be sent to the current user. Defaults to false.'
+              thank_you:
+                type: boolean
+                description: 'If set to true, a thank you message email will be sent. Defaults to false.'
             required:
-              - event_type
+              - recipients
       responses:
-        200:
-          description: 'Mark an open invoice as a draft'
+        201:
+          description: 'Create an invoice message or change invoice status'
+          schema:
+            $ref: '#/definitions/InvoiceMessage'
         default:
           description: 'error payload'
           schema:
@@ -793,12 +828,12 @@ paths:
           schema:
             $ref: '#/definitions/Error'
     post:
-      summary: 'Create an invoice based on tracked time and expenses'
-      operationId: createInvoiceBasedOnTrackedTimeAndExpenses
+      summary: 'Create an invoice'
+      operationId: createInvoice
       description: 'Creates a new invoice object. Returns an invoice object and a 201 Created response code if the call succeeded.'
       externalDocs:
-        description: 'Create an invoice based on tracked time and expenses'
-        url: 'https://help.getharvest.com/api-v2/invoices-api/invoices/invoices/#create-an-invoice-based-on-tracked-time-and-expenses'
+        description: 'Create a free-form invoice'
+        url: 'https://help.getharvest.com/api-v2/invoices-api/invoices/invoices/#create-a-free-form-invoice'
       security:
         -
           BearerAuth: []
@@ -865,11 +900,89 @@ paths:
               line_items_import:
                 type: object
                 description: 'An line items import object'
+                required:
+                  - project_ids
+                properties:
+                  project_ids:
+                    description: 'An array of the client’s project IDs you’d like to include time/expenses from.'
+                    type: array
+                    items:
+                      type: integer
+                  time:
+                    description: 'An time import object.'
+                    type: object
+                    required:
+                      - summary_type
+                    properties:
+                      summary_type:
+                        type: string
+                        description: 'How to summarize the time entries per line item. Options: project, task, people, or detailed.'
+                      from:
+                        type: string
+                        format: date
+                        description: 'Start date for included time entries. Must be provided if to is present. If neither from or to are provided, all unbilled time entries will be included.'
+                      to:
+                        type: string
+                        format: date
+                        description: 'End date for included time entries. Must be provided if from is present. If neither from or to are provided, all unbilled time entries will be included.'
+                  expenses:
+                    description: 'An expense import object.'
+                    type: object
+                    required:
+                      - summary_type
+                    properties:
+                      summary_type:
+                        type: string
+                        description: 'How to summarize the expenses per line item. Options: project, category, people, or detailed.'
+                      from:
+                        type: string
+                        format: date
+                        description: 'Start date for included expenses. Must be provided if to is present. If neither from or to are provided, all unbilled expenses will be included.'
+                      to:
+                        type: string
+                        format: date
+                        description: 'End date for included expenses. Must be provided if from is present. If neither from or to are provided, all unbilled expenses will be included.'
+                      attach_receipt:
+                        type: boolean
+                        description: 'If set to true, a PDF containing an expense report with receipts will be attached to the invoice. Defaults to false.'
+              line_items:
+                type: array
+                description: 'Array of line item parameters'
+                items:
+                  type: object
+                  required:
+                    - kind
+                    - unit_price
+                  properties:
+                    project_id:
+                      description: 'The ID of the project associated with this line item.'
+                      type: integer
+                      format: int32
+                    kind:
+                      description: 'The name of an invoice item category.'
+                      type: string
+                    description:
+                      description: 'Text description of the line item.'
+                      type: string
+                    quantity:
+                      description: 'The unit quantity of the item. Defaults to 1.'
+                      type: number
+                      format: float
+                    unit_price:
+                      description: 'The individual price per unit.'
+                      type: number
+                      format: float
+                    taxed:
+                      description: 'Whether the invoice’s tax percentage applies to this line item. Defaults to false.'
+                      type: boolean
+                    taxed2:
+                      description: 'Whether the invoice’s tax2 percentage applies to this line item. Defaults to false.'
+                      type: boolean
             required:
               - client_id
       responses:
         201:
-          description: 'Create an invoice based on tracked time and expenses'
+          description: 'Create an invoice'
           schema:
             $ref: '#/definitions/Invoice'
         default:
@@ -983,51 +1096,35 @@ paths:
                 description: 'Array of line item parameters'
                 items:
                   type: object
-                  required:
-                    - project_ids
                   properties:
-                    project_ids:
-                      description: 'An array of the client’s project IDs you’d like to include time/expenses from.'
-                      type: array
-                      items:
-                        type: integer
-                    time:
-                      description: 'An time import object.'
-                      type: object
-                      required:
-                        - summary_type
-                      properties:
-                        summary_type:
-                          type: string
-                          description: 'How to summarize the time entries per line item. Options: project, task, people, or detailed.'
-                        from:
-                          type: string
-                          format: date
-                          description: 'Start date for included time entries. Must be provided if to is present. If neither from or to are provided, all unbilled time entries will be included.'
-                        to:
-                          type: string
-                          format: date
-                          description: 'End date for included time entries. Must be provided if from is present. If neither from or to are provided, all unbilled time entries will be included.'
-                    expenses:
-                      description: 'An expense import object.'
-                      type: object
-                      required:
-                        - summary_type
-                      properties:
-                        summary_type:
-                          type: string
-                          description: 'How to summarize the expenses per line item. Options: project, category, people, or detailed.'
-                        from:
-                          type: string
-                          format: date
-                          description: 'Start date for included expenses. Must be provided if to is present. If neither from or to are provided, all unbilled expenses will be included.'
-                        to:
-                          type: string
-                          format: date
-                          description: 'End date for included expenses. Must be provided if from is present. If neither from or to are provided, all unbilled expenses will be included.'
-                        attach_receipt:
-                          type: boolean
-                          description: 'If set to true, a PDF containing an expense report with receipts will be attached to the invoice. Defaults to false.'
+                    id:
+                      description: 'Unique ID for the line item.'
+                      type: integer
+                      format: int32
+                    project_id:
+                      description: 'The ID of the project associated with this line item.'
+                      type: integer
+                      format: int32
+                    kind:
+                      description: 'The name of an invoice item category.'
+                      type: string
+                    description:
+                      description: 'Text description of the line item.'
+                      type: string
+                    quantity:
+                      description: 'The unit quantity of the item. Defaults to 1.'
+                      type: number
+                      format: float
+                    unit_price:
+                      description: 'The individual price per unit.'
+                      type: number
+                      format: float
+                    taxed:
+                      description: 'Whether the invoice’s tax percentage applies to this line item. Defaults to false.'
+                      type: boolean
+                    taxed2:
+                      description: 'Whether the invoice’s tax2 percentage applies to this line item. Defaults to false.'
+                      type: boolean
       responses:
         200:
           description: 'Update an invoice'
@@ -1269,12 +1366,12 @@ paths:
           schema:
             $ref: '#/definitions/Error'
     post:
-      summary: 'Re-open a closed estimate'
-      operationId: reOpenClosedEstimate
-      description: 'Creates a new estimate message object and re-opens a closed estimate. Returns an estimate message object and a 201 Created response code if the call succeeded.'
+      summary: 'Create an estimate message or change estimate status'
+      operationId: createEstimateMessage
+      description: 'Creates a new estimate message object. Returns an estimate message object and a 201 Created response code if the call succeeded.'
       externalDocs:
-        description: 'Re-open a closed estimate'
-        url: 'https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-messages/#re-open-a-closed-estimate'
+        description: 'Create an estimate message'
+        url: 'https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-messages/#create-an-estimate-message'
       security:
         -
           BearerAuth: []
@@ -1295,12 +1392,38 @@ paths:
             properties:
               event_type:
                 type: string
-                description: 'Pass “re-open” to re-open the estimate.'
+                description: 'If provided, runs an event against the estimate. Options: “accept”, “decline”, “re-open”, or “send”.'
+              recipients:
+                type: array
+                description: 'Array of recipient parameters. See below for details.'
+                items:
+                  type: object
+                  required:
+                    - email
+                  properties:
+                    name:
+                      description: 'Name of the message recipient.'
+                      type: string
+                    email:
+                      description: 'Email of the message recipient.'
+                      type: string
+                      format: email
+              subject:
+                type: string
+                description: 'The message subject.'
+              body:
+                type: string
+                description: 'The message body.'
+              send_me_a_copy:
+                type: boolean
+                description: 'If set to true, a copy of the message email will be sent to the current user. Defaults to false.'
             required:
-              - event_type
+              - recipients
       responses:
-        200:
-          description: 'Re-open a closed estimate'
+        201:
+          description: 'Create an estimate message or change estimate status'
+          schema:
+            $ref: '#/definitions/EstimateMessage'
         default:
           description: 'error payload'
           schema:
@@ -1460,50 +1583,29 @@ paths:
                 items:
                   type: object
                   required:
-                    - project_ids
+                    - kind
+                    - unit_price
                   properties:
-                    project_ids:
-                      description: 'An array of the client’s project IDs you’d like to include time/expenses from.'
-                      type: array
-                      items:
-                        type: integer
-                    time:
-                      description: 'An time import object.'
-                      type: object
-                      required:
-                        - summary_type
-                      properties:
-                        summary_type:
-                          type: string
-                          description: 'How to summarize the time entries per line item. Options: project, task, people, or detailed.'
-                        from:
-                          type: string
-                          format: date
-                          description: 'Start date for included time entries. Must be provided if to is present. If neither from or to are provided, all unbilled time entries will be included.'
-                        to:
-                          type: string
-                          format: date
-                          description: 'End date for included time entries. Must be provided if from is present. If neither from or to are provided, all unbilled time entries will be included.'
-                    expenses:
-                      description: 'An expense import object.'
-                      type: object
-                      required:
-                        - summary_type
-                      properties:
-                        summary_type:
-                          type: string
-                          description: 'How to summarize the expenses per line item. Options: project, category, people, or detailed.'
-                        from:
-                          type: string
-                          format: date
-                          description: 'Start date for included expenses. Must be provided if to is present. If neither from or to are provided, all unbilled expenses will be included.'
-                        to:
-                          type: string
-                          format: date
-                          description: 'End date for included expenses. Must be provided if from is present. If neither from or to are provided, all unbilled expenses will be included.'
-                        attach_receipt:
-                          type: boolean
-                          description: 'If set to true, a PDF containing an expense report with receipts will be attached to the invoice. Defaults to false.'
+                    kind:
+                      description: 'The name of an estimate item category.'
+                      type: string
+                    description:
+                      description: 'Text description of the line item.'
+                      type: string
+                    quantity:
+                      description: 'The unit quantity of the item. Defaults to 1.'
+                      type: integer
+                      format: int32
+                    unit_price:
+                      description: 'The individual price per unit.'
+                      type: number
+                      format: float
+                    taxed:
+                      description: 'Whether the estimate’s tax percentage applies to this line item. Defaults to false.'
+                      type: boolean
+                    taxed2:
+                      description: 'Whether the estimate’s tax2 percentage applies to this line item. Defaults to false.'
+                      type: boolean
             required:
               - client_id
       responses:
@@ -1607,51 +1709,31 @@ paths:
                 description: 'Array of line item parameters'
                 items:
                   type: object
-                  required:
-                    - project_ids
                   properties:
-                    project_ids:
-                      description: 'An array of the client’s project IDs you’d like to include time/expenses from.'
-                      type: array
-                      items:
-                        type: integer
-                    time:
-                      description: 'An time import object.'
-                      type: object
-                      required:
-                        - summary_type
-                      properties:
-                        summary_type:
-                          type: string
-                          description: 'How to summarize the time entries per line item. Options: project, task, people, or detailed.'
-                        from:
-                          type: string
-                          format: date
-                          description: 'Start date for included time entries. Must be provided if to is present. If neither from or to are provided, all unbilled time entries will be included.'
-                        to:
-                          type: string
-                          format: date
-                          description: 'End date for included time entries. Must be provided if from is present. If neither from or to are provided, all unbilled time entries will be included.'
-                    expenses:
-                      description: 'An expense import object.'
-                      type: object
-                      required:
-                        - summary_type
-                      properties:
-                        summary_type:
-                          type: string
-                          description: 'How to summarize the expenses per line item. Options: project, category, people, or detailed.'
-                        from:
-                          type: string
-                          format: date
-                          description: 'Start date for included expenses. Must be provided if to is present. If neither from or to are provided, all unbilled expenses will be included.'
-                        to:
-                          type: string
-                          format: date
-                          description: 'End date for included expenses. Must be provided if from is present. If neither from or to are provided, all unbilled expenses will be included.'
-                        attach_receipt:
-                          type: boolean
-                          description: 'If set to true, a PDF containing an expense report with receipts will be attached to the invoice. Defaults to false.'
+                    id:
+                      description: 'Unique ID for the line item.'
+                      type: integer
+                      format: int32
+                    kind:
+                      description: 'The name of an estimate item category.'
+                      type: string
+                    description:
+                      description: 'Text description of the line item.'
+                      type: string
+                    quantity:
+                      description: 'The unit quantity of the item. Defaults to 1.'
+                      type: integer
+                      format: int32
+                    unit_price:
+                      description: 'The individual price per unit.'
+                      type: number
+                      format: float
+                    taxed:
+                      description: 'Whether the estimate’s tax percentage applies to this line item. Defaults to false.'
+                      type: boolean
+                    taxed2:
+                      description: 'Whether the estimate’s tax2 percentage applies to this line item. Defaults to false.'
+                      type: boolean
       responses:
         200:
           description: 'Update an estimate'
@@ -2526,6 +2608,12 @@ paths:
           in: query
           type: integer
         -
+          name: external_reference_id
+          description: 'Only return time entries with the given external_reference ID.'
+          required: false
+          in: query
+          type: string
+        -
           name: is_billed
           description: 'Pass true to only return time entries that have been invoiced and false to return time entries that have not been invoiced.'
           required: false
@@ -2577,12 +2665,12 @@ paths:
           schema:
             $ref: '#/definitions/Error'
     post:
-      summary: 'Create a time entry via start and end time'
-      operationId: createTimeEntryViaStartAndEndTime
-      description: "Creates a new time entry object. Returns a time entry object and a 201 Created response code if the call succeeded.\n\nYou should only use this method to create time entries when your account is configured to track time via start and end time. You can verify this by visiting the Settings page in your Harvest account or by checking if wants_timestamp_timers is true in the Company API."
+      summary: 'Create a time entry'
+      operationId: createTimeEntry
+      description: "Creates a new time entry object. Returns a time entry object and a 201 Created response code if the call succeeded.\n\nYou should only use this method to create time entries when your account is configured to track time via duration. You can verify this by visiting the Settings page in your Harvest account or by checking if wants_timestamp_timers is false in the Company API."
       externalDocs:
-        description: 'Create a time entry via start and end time'
-        url: 'https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#create-a-time-entry-via-start-and-end-time'
+        description: 'Create a time entry via duration'
+        url: 'https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#create-a-time-entry-via-duration'
       security:
         -
           BearerAuth: []
@@ -2631,13 +2719,17 @@ paths:
                     type: string
                   permalink:
                     type: string
+              hours:
+                type: number
+                description: 'The current amount of time tracked. If provided, the time entry will be created with the specified hours and is_running will be set to false. If not provided, hours will be set to 0.0 and is_running will be set to true.'
+                format: float
             required:
               - project_id
               - task_id
               - spent_date
       responses:
         201:
-          description: 'Create a time entry via start and end time'
+          description: 'Create a time entry'
           schema:
             $ref: '#/definitions/TimeEntry'
         default:
@@ -4221,7 +4313,7 @@ paths:
     post:
       summary: 'Create a user'
       operationId: createUser
-      description: 'Creates a new user object. Returns a user object and a 201 Created response code if the call succeeded.'
+      description: 'Creates a new user object and sends an invitation email to the address specified in the email parameter. Returns a user object and a 201 Created response code if the call succeeded.'
       externalDocs:
         description: 'Create a user'
         url: 'https://help.getharvest.com/api-v2/users-api/users/users/#create-a-user'
@@ -4469,7 +4561,7 @@ paths:
   /reports/expenses/clients:
     get:
       summary: 'Clients Report'
-      operationId: clientsReport
+      operationId: clientsExpensesReport
       description: ''
       externalDocs:
         description: 'Clients Report'
@@ -4515,7 +4607,7 @@ paths:
   /reports/expenses/projects:
     get:
       summary: 'Projects Report'
-      operationId: projectsReport
+      operationId: projectsExpensesReport
       description: ''
       externalDocs:
         description: 'Projects Report'
@@ -4607,7 +4699,7 @@ paths:
   /reports/expenses/team:
     get:
       summary: 'Team Report'
-      operationId: teamReport
+      operationId: teamExpensesReport
       description: ''
       externalDocs:
         description: 'Team Report'
@@ -4699,7 +4791,7 @@ paths:
   /reports/time/clients:
     get:
       summary: 'Clients Report'
-      operationId: clientsReport
+      operationId: clientsTimeReport
       description: ''
       externalDocs:
         description: 'Clients Report'
@@ -4745,7 +4837,7 @@ paths:
   /reports/time/projects:
     get:
       summary: 'Projects Report'
-      operationId: projectsReport
+      operationId: projectsTimeReport
       description: ''
       externalDocs:
         description: 'Projects Report'
@@ -4837,7 +4929,7 @@ paths:
   /reports/time/team:
     get:
       summary: 'Team Report'
-      operationId: teamReport
+      operationId: teamTimeReport
       description: ''
       externalDocs:
         description: 'Team Report'

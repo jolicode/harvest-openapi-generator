@@ -35,10 +35,30 @@ class Extractor
         $this->buildPluralDefinitions();
         $this->buildItemsTypes();
 
+        $this->printUnknownDefinitions($this->paths);
+
         return [
             'definitions' => $this->definitions,
             'paths' => $this->paths,
         ];
+    }
+
+    private function printUnknownDefinitions(array $items)
+    {
+        foreach ($items as $key => $item) {
+            if (is_array($item)) {
+                $this->printUnknownDefinitions($item);
+            } elseif ('$ref' === $key) {
+                $item = substr($item, 14);
+
+                if (!isset($this->definitions[$item]) && 'Error' !== $item) {
+                    throw new \LogicException(sprintf(
+                        'Unknown definition: %s',
+                        $item
+                    ));
+                }
+            }
+        }
     }
 
     public static function buildDefinitionProperties($propertyTexts)
@@ -60,11 +80,16 @@ class Extractor
         return $properties;
     }
 
-    public static function buildDefinitionProperty($name, $type, $description)
+    public static function buildDefinitionProperty($name, $type, $description, $path = null, $method = null)
     {
         $arrayof = null;
         $fixedType = self::convertType($type);
         $format = self::detectFormat($name, $type);
+
+        $property = [
+            'type' => $fixedType,
+            'description' => $description,
+        ];
 
         if ('array' === $type) {
             if (preg_match('/^Array of (.+)$/', $description, $matches)) {
@@ -84,85 +109,258 @@ class Extractor
             $arrayof = 'string';
         }
 
-        $property = [
-            'type' => $fixedType,
-            'description' => $description,
-        ];
+        if (null !== $arrayof) {
+            $property['arrayof'] = $arrayof;
+        }
 
-        if ('line_items' === $name) {
+        if ('Array of recipient parameters. See below for details.' === $description) {
+            unset($property['arrayof']);
             $property['items'] = [
                 'type' => 'object',
                 'required' => [
-                    'project_ids',
+                    'email',
                 ],
                 'properties' => [
-                    'project_ids' => [
-                        'description' => 'An array of the client’s project IDs you’d like to include time/expenses from.',
-                        'type' => 'array',
-                        'items' => [
-                            'type' => 'integer',
+                    'name' => [
+                        'description' => 'Name of the message recipient.',
+                        'type' => 'string',
+                    ],
+                    'email' => [
+                        'description' => 'Email of the message recipient.',
+                        'type' => 'string',
+                        'format' => 'email',
+                    ],
+                ],
+            ];
+        } elseif ('line_items_import' === $name) {
+            $property['required'] = [
+                'project_ids',
+            ];
+            $property['properties'] = [
+                'project_ids' => [
+                    'description' => 'An array of the client’s project IDs you’d like to include time/expenses from.',
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'integer',
+                    ],
+                ],
+                'time' => [
+                    'description' => 'An time import object.',
+                    'type' => 'object',
+                    'required' => [
+                        'summary_type',
+                    ],
+                    'properties' => [
+                        'summary_type' => [
+                            'type' => 'string',
+                            'description' => 'How to summarize the time entries per line item. Options: project, task, people, or detailed.',
+                        ],
+                        'from' => [
+                            'type' => 'string',
+                            'format' => 'date',
+                            'description' => 'Start date for included time entries. Must be provided if to is present. If neither from or to are provided, all unbilled time entries will be included.',
+                        ],
+                        'to' => [
+                            'type' => 'string',
+                            'format' => 'date',
+                            'description' => 'End date for included time entries. Must be provided if from is present. If neither from or to are provided, all unbilled time entries will be included.',
                         ],
                     ],
-                    'time' => [
-                        'description' => 'An time import object.',
-                        'type' => 'object',
-                        'required' => [
-                            'summary_type',
-                        ],
-                        'properties' => [
-                            'summary_type' => [
-                                'type' => 'string',
-                                'description' => 'How to summarize the time entries per line item. Options: project, task, people, or detailed.',
-                            ],
-                            'from' => [
-                                'type' => 'string',
-                                'format' => 'date',
-                                'description' => 'Start date for included time entries. Must be provided if to is present. If neither from or to are provided, all unbilled time entries will be included.',
-                            ],
-                            'to' => [
-                                'type' => 'string',
-                                'format' => 'date',
-                                'description' => 'End date for included time entries. Must be provided if from is present. If neither from or to are provided, all unbilled time entries will be included.',
-                            ],
-                        ],
+                ],
+                'expenses' => [
+                    'description' => 'An expense import object.',
+                    'type' => 'object',
+                    'required' => [
+                        'summary_type',
                     ],
-                    'expenses' => [
-                        'description' => 'An expense import object.',
-                        'type' => 'object',
-                        'required' => [
-                            'summary_type',
+                    'properties' => [
+                        'summary_type' => [
+                            'type' => 'string',
+                            'description' => 'How to summarize the expenses per line item. Options: project, category, people, or detailed.',
                         ],
-                        'properties' => [
-                            'summary_type' => [
-                                'type' => 'string',
-                                'description' => 'How to summarize the expenses per line item. Options: project, category, people, or detailed.',
-                            ],
-                            'from' => [
-                                'type' => 'string',
-                                'format' => 'date',
-                                'description' => 'Start date for included expenses. Must be provided if to is present. If neither from or to are provided, all unbilled expenses will be included.',
-                            ],
-                            'to' => [
-                                'type' => 'string',
-                                'format' => 'date',
-                                'description' => 'End date for included expenses. Must be provided if from is present. If neither from or to are provided, all unbilled expenses will be included.',
-                            ],
-                            'attach_receipt' => [
-                                'type' => 'boolean',
-                                'description' => 'If set to true, a PDF containing an expense report with receipts will be attached to the invoice. Defaults to false.',
-                            ],
+                        'from' => [
+                            'type' => 'string',
+                            'format' => 'date',
+                            'description' => 'Start date for included expenses. Must be provided if to is present. If neither from or to are provided, all unbilled expenses will be included.',
+                        ],
+                        'to' => [
+                            'type' => 'string',
+                            'format' => 'date',
+                            'description' => 'End date for included expenses. Must be provided if from is present. If neither from or to are provided, all unbilled expenses will be included.',
+                        ],
+                        'attach_receipt' => [
+                            'type' => 'boolean',
+                            'description' => 'If set to true, a PDF containing an expense report with receipts will be attached to the invoice. Defaults to false.',
                         ],
                     ],
                 ],
             ];
+        } elseif ('line_items' === $name) {
+            if ('/invoices' === $path) {
+                unset($property['arrayof']);
+                $property['items'] = [
+                    'type' => 'object',
+                    'required' => [
+                        'kind',
+                        'unit_price',
+                    ],
+                    'properties' => [
+                        'project_id' => [
+                            'description' => 'The ID of the project associated with this line item.',
+                            'type' => 'integer',
+                            'format' => 'int32',
+                        ],
+                        'kind' => [
+                            'description' => 'The name of an invoice item category.',
+                            'type' => 'string',
+                        ],
+                        'description' => [
+                            'description' => 'Text description of the line item.',
+                            'type' => 'string',
+                        ],
+                        'quantity' => [
+                            'description' => 'The unit quantity of the item. Defaults to 1.',
+                            'type' => 'number',
+                            'format' => 'float',
+                        ],
+                        'unit_price' => [
+                            'description' => 'The individual price per unit.',
+                            'type' => 'number',
+                            'format' => 'float',
+                        ],
+                        'taxed' => [
+                            'description' => 'Whether the invoice’s tax percentage applies to this line item. Defaults to false.',
+                            'type' => 'boolean',
+                        ],
+                        'taxed2' => [
+                            'description' => 'Whether the invoice’s tax2 percentage applies to this line item. Defaults to false.',
+                            'type' => 'boolean',
+                        ],
+                    ],
+                ];
+            } elseif ('/invoices/{invoiceId}' === $path) {
+                unset($property['arrayof']);
+                $property['items'] = [
+                    'type' => 'object',
+                    'properties' => [
+                        'id' => [
+                            'description' => 'Unique ID for the line item.',
+                            'type' => 'integer',
+                            'format' => 'int32',
+                        ],
+                        'project_id' => [
+                            'description' => 'The ID of the project associated with this line item.',
+                            'type' => 'integer',
+                            'format' => 'int32',
+                        ],
+                        'kind' => [
+                            'description' => 'The name of an invoice item category.',
+                            'type' => 'string',
+                        ],
+                        'description' => [
+                            'description' => 'Text description of the line item.',
+                            'type' => 'string',
+                        ],
+                        'quantity' => [
+                            'description' => 'The unit quantity of the item. Defaults to 1.',
+                            'type' => 'number',
+                            'format' => 'float',
+                        ],
+                        'unit_price' => [
+                            'description' => 'The individual price per unit.',
+                            'type' => 'number',
+                            'format' => 'float',
+                        ],
+                        'taxed' => [
+                            'description' => 'Whether the invoice’s tax percentage applies to this line item. Defaults to false.',
+                            'type' => 'boolean',
+                        ],
+                        'taxed2' => [
+                            'description' => 'Whether the invoice’s tax2 percentage applies to this line item. Defaults to false.',
+                            'type' => 'boolean',
+                        ],
+                    ],
+                ];
+            } elseif ('/estimates' === $path) {
+                unset($property['arrayof']);
+                $property['items'] = [
+                    'type' => 'object',
+                    'required' => [
+                        'kind',
+                        'unit_price',
+                    ],
+                    'properties' => [
+                        'kind' => [
+                            'description' => 'The name of an estimate item category.',
+                            'type' => 'string',
+                        ],
+                        'description' => [
+                            'description' => 'Text description of the line item.',
+                            'type' => 'string',
+                        ],
+                        'quantity' => [
+                            'description' => 'The unit quantity of the item. Defaults to 1.',
+                            'type' => 'integer',
+                            'format' => 'int32',
+                        ],
+                        'unit_price' => [
+                            'description' => 'The individual price per unit.',
+                            'type' => 'number',
+                            'format' => 'float',
+                        ],
+                        'taxed' => [
+                            'description' => 'Whether the estimate’s tax percentage applies to this line item. Defaults to false.',
+                            'type' => 'boolean',
+                        ],
+                        'taxed2' => [
+                            'description' => 'Whether the estimate’s tax2 percentage applies to this line item. Defaults to false.',
+                            'type' => 'boolean',
+                        ],
+                    ],
+                ];
+            } elseif ('/estimates/{estimateId}' === $path) {
+                unset($property['arrayof']);
+                $property['items'] = [
+                    'type' => 'object',
+                    'properties' => [
+                        'id' => [
+                            'description' => 'Unique ID for the line item.',
+                            'type' => 'integer',
+                            'format' => 'int32',
+                        ],
+                        'kind' => [
+                            'description' => 'The name of an estimate item category.',
+                            'type' => 'string',
+                        ],
+                        'description' => [
+                            'description' => 'Text description of the line item.',
+                            'type' => 'string',
+                        ],
+                        'quantity' => [
+                            'description' => 'The unit quantity of the item. Defaults to 1.',
+                            'type' => 'integer',
+                            'format' => 'int32',
+                        ],
+                        'unit_price' => [
+                            'description' => 'The individual price per unit.',
+                            'type' => 'number',
+                            'format' => 'float',
+                        ],
+                        'taxed' => [
+                            'description' => 'Whether the estimate’s tax percentage applies to this line item. Defaults to false.',
+                            'type' => 'boolean',
+                        ],
+                        'taxed2' => [
+                            'description' => 'Whether the estimate’s tax2 percentage applies to this line item. Defaults to false.',
+                            'type' => 'boolean',
+                        ],
+                    ],
+                ];
+            }
         }
 
         if (null !== $format) {
             $property['format'] = $format;
-        }
-
-        if (null !== $arrayof) {
-            $property['arrayof'] = $arrayof;
         }
 
         if ('object' === $type) {
@@ -184,7 +382,7 @@ class Extractor
                 $property['properties'] = [$matches[1] => [
                     'type' => self::guessFieldType($matches[1]),
                 ]];
-            } else {
+            } elseif (!isset($property['properties'])) {
                 echo "$name\t$desc\n";
             }
         }
@@ -231,8 +429,10 @@ class Extractor
         }
 
         return [
-            'summary' => $summary,
-            'operationId' => self::buildOperationId($method, $summary),
+            'summary' => self::cleanupSummary($summary),
+            'operationId' => self::cleanupOperationId(
+                self::buildOperationId($path, $method, $summary)
+            ),
             'description' => implode("\n\n", array_reverse($description)),
             'externalDocs' => [
                 'description' => $summary,
@@ -244,12 +444,12 @@ class Extractor
                     'AccountAuth' => [],
                 ],
             ],
-            'parameters' => self::buildPathParameters($method, $pathParameters, $explicitParameters, $explicitParametersColumns),
+            'parameters' => self::buildPathParameters($method, $path, $pathParameters, $explicitParameters, $explicitParametersColumns),
             'responses' => self::buildPathResponse($method, $summary, $title),
         ];
     }
 
-    public static function buildPathParameters($method, $pathParameters, $explicitParameters, $explicitParametersColumns)
+    public static function buildPathParameters($method, $path, $pathParameters, $explicitParameters, $explicitParametersColumns)
     {
         $parameters = [];
 
@@ -259,7 +459,7 @@ class Extractor
 
         if (\count($explicitParameters) > 0) {
             if (\in_array($method, ['patch', 'post'], true)) {
-                $parameters[] = self::buildPathBodyParameter($explicitParameters, $explicitParametersColumns);
+                $parameters[] = self::buildPathBodyParameter($method, $path, $explicitParameters, $explicitParametersColumns);
             } else {
                 while (\count($explicitParameters) > 0) {
                     $required = false;
@@ -276,7 +476,7 @@ class Extractor
         return $parameters;
     }
 
-    public static function buildPathBodyParameter($explicitParameters, $explicitParametersColumns)
+    public static function buildPathBodyParameter($method, $path, $explicitParameters, $explicitParametersColumns)
     {
         $requiredProperties = [];
         $properties = [];
@@ -294,7 +494,7 @@ class Extractor
                 $requiredProperties[] = $parameter;
             }
 
-            $property = self::buildDefinitionProperty($parameter, $type, $description);
+            $property = self::buildDefinitionProperty($parameter, $type, $description, $path, $method);
             $properties[$parameter] = $property;
         }
 
@@ -337,8 +537,22 @@ class Extractor
         ];
     }
 
-    public static function buildOperationId($method, $summary)
+    public static function buildOperationId($path, $method, $summary)
     {
+        if ('/reports/time/clients' === $path) {
+            return 'clientsTimeReport';
+        } elseif ('/reports/expenses/clients' === $path) {
+            return 'clientsExpensesReport';
+        } elseif ('/reports/time/team' === $path) {
+            return 'teamTimeReport';
+        } elseif ('/reports/expenses/team' === $path) {
+            return 'teamExpensesReport';
+        } elseif ('/reports/time/projects' === $path) {
+            return 'projectsTimeReport';
+        } elseif ('/reports/expenses/projects' === $path) {
+            return 'projectsExpensesReport';
+        }
+
         $summary = str_replace([' all ', ' an ', ' a '], ' ', $summary);
         $summary = str_replace('’s', '', $summary);
 
@@ -348,7 +562,7 @@ class Extractor
     public static function buildPathResponse($method, $summary, $title)
     {
         $successResponse = [
-            'description' => $summary,
+            'description' => self::cleanupSummary($summary),
         ];
         $successResponseSchema = self::guessPathResponseSchema($summary, $title);
 
@@ -374,6 +588,27 @@ class Extractor
         $separators = ['-', '_', ' '];
 
         return trim(str_replace($separators, '', ucwords(strtolower($word), implode('', $separators))), " \t.");
+    }
+
+    private static function cleanupOperationId($operationId)
+    {
+        $conversionMap = [
+            'createFreeFormInvoice' => 'createInvoice',
+            'createTimeEntryViaDuration' => 'createTimeEntry',
+        ];
+
+        return isset($conversionMap[$operationId]) ? $conversionMap[$operationId] : $operationId;
+    }
+
+    private static function cleanupSummary($summary) {
+        $summaries = [
+            'Create an invoice message' => 'Create an invoice message or change invoice status',
+            'Create a free-form invoice' => 'Create an invoice',
+            'Create an estimate message' => 'Create an estimate message or change estimate status',
+            'Create a time entry via duration' => 'Create a time entry',
+        ];
+
+        return isset($summaries[$summary]) ? $summaries[$summary] : $summary;
     }
 
     public static function convertType($type)
@@ -483,6 +718,14 @@ class Extractor
 
         $result = $guesser($summary);
 
+        if ('#/definitions/Free' === $result) {
+            $result = '#/definitions/Invoice';
+        }
+
+        if ('#/definitions/TimeEntryViaDuration' === $result) {
+            $result = '#/definitions/TimeEntry';
+        }
+
         if ('#/definitions/TimeEntryViaStartAndEndTime' === $result) {
             $result = '#/definitions/TimeEntry';
         }
@@ -556,10 +799,10 @@ class Extractor
                 if (isset($property['arrayof'])) {
                     if (isset($this->definitions[$property['arrayof']])) {
                         $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['$ref' => '#/definitions/'.$property['arrayof']];
-                    }
-
-                    if (\in_array($property['arrayof'], self::BASE_TYPES, true)) {
+                    } elseif (\in_array($property['arrayof'], self::BASE_TYPES, true)) {
                         $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['type' => $property['arrayof']];
+                    } else {
+                        echo $property['arrayof'] . "\n";
                     }
 
                     unset($this->definitions[$definitionName]['properties'][$propertyName]['arrayof']);
@@ -583,10 +826,15 @@ class Extractor
                             if (isset($property['arrayof'])) {
                                 if (isset($this->definitions[$property['arrayof']])) {
                                     $this->paths[$pathName][$methodName]['parameters'][$id]['schema']['properties'][$propertyName]['items'] = ['$ref' => '#/definitions/'.$property['arrayof']];
-                                }
-
-                                if (\in_array($property['arrayof'], self::BASE_TYPES, true)) {
+                                } elseif (\in_array($property['arrayof'], self::BASE_TYPES, true)) {
                                     $this->paths[$pathName][$methodName]['parameters'][$id]['schema']['properties'][$propertyName]['items'] = ['type' => $property['arrayof']];
+                                } else {
+                                    echo sprintf(
+                                        "%s %s - %s\n",
+                                        $methodName,
+                                        $pathName,
+                                        $property['arrayof']
+                                    );
                                 }
 
                                 unset($this->paths[$pathName][$methodName]['parameters'][$id]['schema']['properties'][$propertyName]['arrayof']);
@@ -661,9 +909,26 @@ class Extractor
         }
     }
 
+    private function download($url): string
+    {
+        $key = md5($url);
+        $cacheDirectory = __DIR__ . '/../../var/download/';
+        $path = $cacheDirectory . $key . '.txt';
+
+        if (!is_dir($cacheDirectory)) {
+            mkdir($cacheDirectory, 0700, true);
+        }
+
+        if (!file_exists($path)) {
+            copy($url, $path);
+        }
+
+        return file_get_contents($path);
+    }
+
     private function extractApiDoc($url)
     {
-        $crawler = new Crawler(file_get_contents($url));
+        $crawler = new Crawler($this->download($url));
 
         $title = trim($crawler->filter('h1')->text());
 
@@ -705,7 +970,28 @@ class Extractor
                     $this->paths[$path] = [];
                 }
 
-                $this->paths[$path][$method] = self::buildPath($url, $path, $method, $node, $title);
+                $operation = self::buildPath($url, $path, $method, $node, $title);
+
+                if (!isset($this->paths[$path][$method])) {
+                    $this->paths[$path][$method] = $operation;
+                } else {
+                    // add possible additionnal body parameters
+                    $bodyParams = array_filter($operation['parameters'], function($item) {
+                        return $item['in'] === 'body';
+                    });
+                    if (count($bodyParams) > 0) {
+                        foreach ($this->paths[$path][$method]['parameters'] as $key => $parameter) {
+                            if ($parameter['in'] === 'body') {
+                                $this->paths[$path][$method]['parameters'][$key]['schema']['properties'] = array_merge(
+                                    array_shift($bodyParams)['schema']['properties'],
+                                    $this->paths[$path][$method]['parameters'][$key]['schema']['properties']
+                                );
+
+                                return;
+                            }
+                        }
+                    }
+                }
             }
         });
     }
