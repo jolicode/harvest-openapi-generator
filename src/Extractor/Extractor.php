@@ -43,24 +43,6 @@ class Extractor
         ];
     }
 
-    private function printUnknownDefinitions(array $items)
-    {
-        foreach ($items as $key => $item) {
-            if (is_array($item)) {
-                $this->printUnknownDefinitions($item);
-            } elseif ('$ref' === $key) {
-                $item = substr($item, 14);
-
-                if (!isset($this->definitions[$item]) && 'Error' !== $item) {
-                    throw new \LogicException(sprintf(
-                        'Unknown definition: %s',
-                        $item
-                    ));
-                }
-            }
-        }
-    }
-
     public static function buildDefinitionProperties($propertyTexts)
     {
         $properties = [];
@@ -590,27 +572,6 @@ class Extractor
         return trim(str_replace($separators, '', ucwords(strtolower($word), implode('', $separators))), " \t.");
     }
 
-    private static function cleanupOperationId($operationId)
-    {
-        $conversionMap = [
-            'createFreeFormInvoice' => 'createInvoice',
-            'createTimeEntryViaDuration' => 'createTimeEntry',
-        ];
-
-        return isset($conversionMap[$operationId]) ? $conversionMap[$operationId] : $operationId;
-    }
-
-    private static function cleanupSummary($summary) {
-        $summaries = [
-            'Create an invoice message' => 'Create an invoice message or change invoice status',
-            'Create a free-form invoice' => 'Create an invoice',
-            'Create an estimate message' => 'Create an estimate message or change estimate status',
-            'Create a time entry via duration' => 'Create a time entry',
-        ];
-
-        return isset($summaries[$summary]) ? $summaries[$summary] : $summary;
-    }
-
     public static function convertType($type)
     {
         $conversionMap = [
@@ -792,6 +753,43 @@ class Extractor
         return substr($haystack, -$length) === $needle;
     }
 
+    private function printUnknownDefinitions(array $items)
+    {
+        foreach ($items as $key => $item) {
+            if (\is_array($item)) {
+                $this->printUnknownDefinitions($item);
+            } elseif ('$ref' === $key) {
+                $item = substr($item, 14);
+
+                if (!isset($this->definitions[$item]) && 'Error' !== $item) {
+                    throw new \LogicException(sprintf('Unknown definition: %s', $item));
+                }
+            }
+        }
+    }
+
+    private static function cleanupOperationId($operationId)
+    {
+        $conversionMap = [
+            'createFreeFormInvoice' => 'createInvoice',
+            'createTimeEntryViaDuration' => 'createTimeEntry',
+        ];
+
+        return isset($conversionMap[$operationId]) ? $conversionMap[$operationId] : $operationId;
+    }
+
+    private static function cleanupSummary($summary)
+    {
+        $summaries = [
+            'Create an invoice message' => 'Create an invoice message or change invoice status',
+            'Create a free-form invoice' => 'Create an invoice',
+            'Create an estimate message' => 'Create an estimate message or change estimate status',
+            'Create a time entry via duration' => 'Create a time entry',
+        ];
+
+        return isset($summaries[$summary]) ? $summaries[$summary] : $summary;
+    }
+
     private function buildItemsTypes()
     {
         foreach ($this->definitions as $definitionName => $definition) {
@@ -802,7 +800,7 @@ class Extractor
                     } elseif (\in_array($property['arrayof'], self::BASE_TYPES, true)) {
                         $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['type' => $property['arrayof']];
                     } else {
-                        echo $property['arrayof'] . "\n";
+                        echo $property['arrayof']."\n";
                     }
 
                     unset($this->definitions[$definitionName]['properties'][$propertyName]['arrayof']);
@@ -912,8 +910,8 @@ class Extractor
     private function download($url): string
     {
         $key = md5($url);
-        $cacheDirectory = __DIR__ . '/../../var/download/';
-        $path = $cacheDirectory . $key . '.txt';
+        $cacheDirectory = __DIR__.'/../../var/download/';
+        $path = $cacheDirectory.$key.'.txt';
 
         if (!is_dir($cacheDirectory)) {
             mkdir($cacheDirectory, 0700, true);
@@ -976,12 +974,12 @@ class Extractor
                     $this->paths[$path][$method] = $operation;
                 } else {
                     // add possible additionnal body parameters
-                    $bodyParams = array_filter($operation['parameters'], function($item) {
-                        return $item['in'] === 'body';
+                    $bodyParams = array_filter($operation['parameters'], function ($item) {
+                        return 'body' === $item['in'];
                     });
-                    if (count($bodyParams) > 0) {
+                    if (\count($bodyParams) > 0) {
                         foreach ($this->paths[$path][$method]['parameters'] as $key => $parameter) {
-                            if ($parameter['in'] === 'body') {
+                            if ('body' === $parameter['in']) {
                                 $this->paths[$path][$method]['parameters'][$key]['schema']['properties'] = array_merge(
                                     array_shift($bodyParams)['schema']['properties'],
                                     $this->paths[$path][$method]['parameters'][$key]['schema']['properties']
