@@ -111,8 +111,8 @@ class Dumper
                         'description' => 'The quantity of units to use in calculating the total_cost of the expense.',
                         'format' => 'int32',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
         $warnings = [];
 
@@ -121,7 +121,7 @@ class Dumper
                 foreach ($override['properties'] as $propertyName => $propertyOverride) {
                     if (isset($data['definitions'][$definition])
                         && isset($data['definitions'][$definition]['properties'][$propertyName])) {
-                            $warnings[] = sprintf(
+                        $warnings[] = sprintf(
                                 'The property "%s" of the definition "%s" already exists and has been overriden.',
                                 $propertyName,
                                 $definition

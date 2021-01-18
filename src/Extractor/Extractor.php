@@ -35,9 +35,11 @@ class Extractor
         $this->buildPluralDefinitions();
         $this->buildItemsTypes();
 
-        $this->paths = array_map(function($path) {
+        $this->paths = array_map(function ($path) {
             ksort($path);
-            return $path; },
+
+            return $path;
+        },
         $this->paths);
         ksort($this->paths);
 
