@@ -35,6 +35,11 @@ class GenerateCommand extends Command
     {
         $extractor = new Extractor();
         $dumper = new Dumper(__DIR__.'/../../generated/harvest-openapi.yaml');
-        $dumper->dump($extractor->extract());
+        $warnings = $dumper->dump($extractor->extract());
+
+        if (count($warnings) > 0) {
+            $formatter = $this->getHelper('formatter');
+            $output->writeln($formatter->formatBlock($warnings, 'bg=yellow;fg=black', true));
+        }
     }
 }

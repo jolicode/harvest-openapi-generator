@@ -15,12 +15,14 @@ use Symfony\Component\Yaml\Yaml;
 
 class Dumper
 {
-    public function __construct($target)
+    private string $target;
+
+    public function __construct(string $target)
     {
         $this->target = $target;
     }
 
-    public function dump($data)
+    public function dump(array $data): array
     {
         $baseData = [
             'swagger' => '2.0',
@@ -96,6 +98,43 @@ class Dumper
             ],
         ];
         $data = array_merge($baseData, $data);
+        $definitionOverrides = [
+            'Expense' => [
+                'properties' => [
+                    'total_cost' => [
+                        'type' => 'number',
+                        'description' => 'The total amount of the expense.',
+                        'format' => 'float',
+                    ],
+                    'units' => [
+                        'type' => 'integer',
+                        'description' => 'The quantity of units to use in calculating the total_cost of the expense.',
+                        'format' => 'int32',
+                    ],
+                ]
+            ]
+        ];
+        $warnings = [];
+
+        foreach ($definitionOverrides as $definition => $override) {
+            if (isset($override['properties'])) {
+                foreach ($override['properties'] as $propertyName => $propertyOverride) {
+                    if (isset($data['definitions'][$definition])
+                        && isset($data['definitions'][$definition]['properties'][$propertyName])) {
+                            $warnings[] = sprintf(
+                                'The property "%s" of the definition "%s" already exists and has been overriden.',
+                                $propertyName,
+                                $definition
+                            );
+                    }
+
+                    $data['definitions'][$definition]['properties'][$propertyName] = $propertyOverride;
+                }
+            }
+        }
+
         file_put_contents($this->target, Yaml::dump($data, 20, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE));
+
+        return $warnings;
     }
 }

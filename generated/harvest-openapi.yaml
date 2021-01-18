@@ -5811,6 +5811,14 @@ definitions:
         type: string
         description: 'Date and time the expense was last updated.'
         format: date-time
+      total_cost:
+        type: number
+        description: 'The total amount of the expense.'
+        format: float
+      units:
+        type: integer
+        description: 'The quantity of units to use in calculating the total_cost of the expense.'
+        format: int32
   ExpenseCategory:
     type: object
     externalDocs:
