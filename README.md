@@ -38,6 +38,10 @@ the generated Swagger specification, please do not hesitate to
 [open an issue](https://github.com/jolicode/harvest-openapi-generator/issues)
 and share it with us.
 
+If the [documentation](https://help.getharvest.com/api-v2/) is incomplete, you
+may want to override a definition. See the
+`JoliCode\Extractor\Dumper\Dumper:dump()` method.
+
 ## Further documentation
 
 You can see the current and past versions using one of the following:

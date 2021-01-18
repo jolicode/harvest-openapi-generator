@@ -35,7 +35,12 @@ class Extractor
         $this->buildPluralDefinitions();
         $this->buildItemsTypes();
 
-        array_map('ksort', $this->paths);
+        $this->paths = array_map(function ($path) {
+            ksort($path);
+
+            return $path;
+        },
+        $this->paths);
         ksort($this->paths);
 
         $this->printUnknownDefinitions($this->paths);
@@ -376,7 +381,7 @@ class Extractor
         return $property;
     }
 
-    public function buildPath($url, $path, $method, $node, $title)
+    public static function buildPath($url, $path, $method, $node, $title)
     {
         $description = [];
         $parentNode = $node->parents()->filter('.highlighter-rouge')->first();
