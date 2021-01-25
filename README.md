@@ -1,7 +1,7 @@
 # Harvestapp swagger generator
 
 Extracts documentation from the [documentation website](https://help.getharvest.com/api-v2/)
-and generates a swagger.yaml file (OpenAPI 2.0).
+and generates an OpenAPI 3.0 file that can be used to further generate a client. You can see for example [the harvest-php-api library](https://github.com/jolicode/harvest-php-api), or [the Swagger editor loaded with this OpenApi file](https://editor.swagger.io/?url=https://raw.githubusercontent.com/jolicode/harvest-openapi-generator/master/generated/harvest-openapi.yaml).
 
 ## Usage
 
@@ -10,7 +10,7 @@ $ composer install
 $ ./bin/extractor generate
 ```
 
-Then check the `generated` directory, it should contain an OpenAPI 2.0 valid
+Then check the `generated` directory, it should contain an OpenAPI 3.0 valid
 file named `harvest-openapi.yaml`.
 
 ## I just need the OpenAPI file
