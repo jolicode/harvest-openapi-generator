@@ -47,7 +47,7 @@ class Extractor
         $this->printOperationsIdList($this->paths);
 
         return [
-            'definitions' => $this->definitions,
+            'schemas' => $this->definitions,
             'paths' => $this->paths,
         ];
     }
@@ -80,6 +80,7 @@ class Extractor
         $property = [
             'type' => $fixedType,
             'description' => $description,
+            'nullable' => true,
         ];
 
         if ('array' === $type) {
@@ -101,11 +102,10 @@ class Extractor
         }
 
         if (null !== $arrayof) {
-            $property['arrayof'] = $arrayof;
+            $property['items'] = ['type' => $arrayof];
         }
 
         if ('Array of recipient parameters. See below for details.' === $description) {
-            unset($property['arrayof']);
             $property['items'] = [
                 'type' => 'object',
                 'required' => [
@@ -188,7 +188,6 @@ class Extractor
             ];
         } elseif ('line_items' === $name) {
             if ('/invoices' === $path) {
-                unset($property['arrayof']);
                 $property['items'] = [
                     'type' => 'object',
                     'required' => [
@@ -230,7 +229,6 @@ class Extractor
                     ],
                 ];
             } elseif ('/invoices/{invoiceId}' === $path) {
-                unset($property['arrayof']);
                 $property['items'] = [
                     'type' => 'object',
                     'properties' => [
@@ -273,7 +271,6 @@ class Extractor
                     ],
                 ];
             } elseif ('/estimates' === $path) {
-                unset($property['arrayof']);
                 $property['items'] = [
                     'type' => 'object',
                     'required' => [
@@ -310,7 +307,6 @@ class Extractor
                     ],
                 ];
             } elseif ('/estimates/{estimateId}' === $path) {
-                unset($property['arrayof']);
                 $property['items'] = [
                     'type' => 'object',
                     'properties' => [
@@ -363,15 +359,16 @@ class Extractor
                 $property['objectoftype'] = self::singularize(self::camelize($matches[1]));
             } elseif (preg_match('/(?:([a-zA-Z_]+), )+([a-zA-Z_]+)/', $desc, $matches)) {
                 $matches = explode(', ', $matches[0]);
-                $matches = array_flip($matches);
+                $matches = array_flip(array_map('strtolower', $matches));
                 array_walk($matches, function (&$item, $key) use ($name) {
-                    $item = ['type' => self::guessFieldType($key, $name)];
+                    $item = ['type' => self::guessFieldType($key, $name), 'nullable' => true];
                 });
 
                 $property['properties'] = $matches;
             } elseif (preg_match('/^An object containing(?:.*) ([a-zA-Z_]+).$/', $desc, $matches)) {
                 $property['properties'] = [$matches[1] => [
                     'type' => self::guessFieldType($matches[1]),
+                    'nullable' => true,
                 ]];
             } elseif (!isset($property['properties'])) {
                 echo "$name\t$desc\n";
@@ -419,7 +416,21 @@ class Extractor
                 });
         }
 
-        return [
+        $example = '';
+
+        foreach ($parentNode->nextAll() as $next) {
+            if ('h2' === $next->tagName) {
+                // break on new section
+                break;
+            }
+
+            if ('figure' === $next->tagName) {
+                $example = $next->textContent;
+                break;
+            }
+        }
+
+        $pathData = [
             'summary' => self::cleanupSummary($summary),
             'operationId' => self::cleanupOperationId(
                 self::buildOperationId($path, $method, $summary)
@@ -435,9 +446,19 @@ class Extractor
                     'AccountAuth' => [],
                 ],
             ],
-            'parameters' => self::buildPathParameters($method, $path, $pathParameters, $explicitParameters, $explicitParametersColumns),
-            'responses' => self::buildPathResponse($method, $summary, $title),
+            'responses' => self::buildPathResponse($method, $summary, $title, $example),
         ];
+        $pathParametersData = self::buildPathParameters($method, $path, $pathParameters, $explicitParameters, $explicitParametersColumns);
+
+        if (count($pathParametersData)) {
+            $pathData['parameters'] = $pathParametersData;
+        }
+
+        if (\in_array($method, ['patch', 'post'], true) && count($explicitParameters) > 0) {
+            $pathData['requestBody'] = self::buildRequestBody($method, $path, $explicitParameters, $explicitParametersColumns);
+        }
+
+        return $pathData;
     }
 
     public static function buildPathParameters($method, $path, $pathParameters, $explicitParameters, $explicitParametersColumns)
@@ -448,26 +469,22 @@ class Extractor
             $parameters[] = self::buildPathPathParameter($pathParameter);
         }
 
-        if (\count($explicitParameters) > 0) {
-            if (\in_array($method, ['patch', 'post'], true)) {
-                $parameters[] = self::buildPathBodyParameter($method, $path, $explicitParameters, $explicitParametersColumns);
-            } else {
-                while (\count($explicitParameters) > 0) {
-                    $required = false;
+        if (\count($explicitParameters) > 0 && !\in_array($method, ['patch', 'post'], true)) {
+            while (\count($explicitParameters) > 0) {
+                $required = false;
 
-                    foreach ($explicitParametersColumns as $columnName) {
-                        $$columnName = array_shift($explicitParameters);
-                    }
-
-                    $parameters[] = self::buildPathQueryParameter($parameter, $type, $description, $required);
+                foreach ($explicitParametersColumns as $columnName) {
+                    $$columnName = array_shift($explicitParameters);
                 }
+
+                $parameters[] = self::buildPathQueryParameter($parameter, $type, $description, $required);
             }
         }
 
         return $parameters;
     }
 
-    public static function buildPathBodyParameter($method, $path, $explicitParameters, $explicitParametersColumns)
+    public static function buildRequestBody($method, $path, $explicitParameters, $explicitParametersColumns)
     {
         $requiredProperties = [];
         $properties = [];
@@ -490,18 +507,20 @@ class Extractor
         }
 
         $result = [
-            'name' => 'payload',
             'description' => 'json payload',
             'required' => true,
-            'in' => 'body',
-            'schema' => [
-                'type' => 'object',
-                'properties' => $properties,
+            'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => $properties,
+                    ],
+                ],
             ],
         ];
 
         if (\count($requiredProperties) > 0) {
-            $result['schema']['required'] = $requiredProperties;
+            $result['content']['application/json']['schema']['required'] = $requiredProperties;
         }
 
         return $result;
@@ -513,7 +532,9 @@ class Extractor
             'name' => $name,
             'required' => true,
             'in' => 'path',
-            'type' => 'string',
+            'schema' => [
+                'type' => 'string',
+            ],
         ];
     }
 
@@ -524,7 +545,9 @@ class Extractor
             'description' => $description,
             'required' => ('required' === $required),
             'in' => 'query',
-            'type' => self::convertType($type),
+            'schema' => [
+                'type' => self::convertType($type),
+            ],
         ];
     }
 
@@ -550,16 +573,27 @@ class Extractor
         return lcfirst(self::camelize($summary));
     }
 
-    public static function buildPathResponse($method, $summary, $title)
+    public static function buildPathResponse($method, $summary, $title, $example)
     {
         $successResponse = [
             'description' => self::cleanupSummary($summary),
         ];
+        $successResponseContent = [];
         $successResponseSchema = self::guessPathResponseSchema($summary, $title);
 
         if ($successResponseSchema) {
-            $successResponse['schema'] = [
+            $successResponseContent['schema'] = [
                 '$ref' => $successResponseSchema,
+            ];
+        }
+
+        if ($example = json_decode($example, true)) {
+            $successResponseContent['example'] = $example;
+        }
+
+        if (count($successResponseContent) > 0) {
+            $successResponse['content'] = [
+                'application/json' => $successResponseContent,
             ];
         }
 
@@ -567,8 +601,12 @@ class Extractor
             self::guessPathResponseStatus($method, $summary) => $successResponse,
             'default' => [
                 'description' => 'error payload',
-                'schema' => [
-                    '$ref' => '#/definitions/Error',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/Error',
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -652,35 +690,39 @@ class Extractor
     {
         $guesser = function ($summary) use ($title) {
             if (preg_match('/^Create an? ([a-zA-Z ]+)/', $summary, $matches)) {
-                return '#/definitions/'.self::camelize($matches[1]);
+                return '#/components/schemas/'.self::camelize($matches[1]);
             }
 
             if (preg_match('/^Retrieve an? ([a-zA-Z ]+)/', $summary, $matches)) {
-                return '#/definitions/'.self::camelize($matches[1]);
+                return '#/components/schemas/'.self::camelize($matches[1]);
             }
 
             if (preg_match('/^Update an? ([a-zA-Z ]+)/', $summary, $matches)) {
-                return '#/definitions/'.self::camelize($matches[1]);
+                return '#/components/schemas/'.self::camelize($matches[1]);
             }
 
             if (preg_match('/^List (?:all|active) ([a-zA-Z ]+) for an? ([a-zA-Z]+)/', $summary, $matches)) {
                 if ('specific' === $matches[2]) {
-                    return '#/definitions/'.self::camelize($matches[1]);
+                    return '#/components/schemas/'.self::camelize($matches[1]);
                 }
 
-                return '#/definitions/'.self::camelize($matches[2].' '.$matches[1]);
+                return '#/components/schemas/'.self::camelize($matches[2].' '.$matches[1]);
             }
 
             if (preg_match('/^List (?:all|active) ([a-zA-Z ]+)/', $summary, $matches)) {
-                return '#/definitions/'.self::camelize($matches[1]);
+                return '#/components/schemas/'.self::camelize($matches[1]);
             }
 
             if (preg_match('/^([a-zA-Z ]+) Report/', $summary)) {
-                return '#/definitions/'.$title.'Results';
+                return '#/components/schemas/'.$title.'Results';
+            }
+
+            if (preg_match('/ (:?stopped|running) time entry$/', $summary)) {
+                return '#/components/schemas/TimeEntry';
             }
 
             if ('Retrieve the currently authenticated user' === $summary) {
-                return '#/definitions/User';
+                return '#/components/schemas/User';
             }
 
             return null;
@@ -688,24 +730,24 @@ class Extractor
 
         $result = $guesser($summary);
 
-        if ('#/definitions/Free' === $result) {
-            $result = '#/definitions/Invoice';
+        if ('#/components/schemas/Free' === $result) {
+            $result = '#/components/schemas/Invoice';
         }
 
-        if ('#/definitions/TimeEntryViaDuration' === $result) {
-            $result = '#/definitions/TimeEntry';
+        if ('#/components/schemas/TimeEntryViaDuration' === $result) {
+            $result = '#/components/schemas/TimeEntry';
         }
 
-        if ('#/definitions/TimeEntryViaStartAndEndTime' === $result) {
-            $result = '#/definitions/TimeEntry';
+        if ('#/components/schemas/TimeEntryViaStartAndEndTime' === $result) {
+            $result = '#/components/schemas/TimeEntry';
         }
 
-        if ('#/definitions/ProjectAssignmentsForTheCurrentlyAuthenticatedUser' === $result) {
-            $result = '#/definitions/ProjectAssignments';
+        if ('#/components/schemas/ProjectAssignmentsForTheCurrentlyAuthenticatedUser' === $result) {
+            $result = '#/components/schemas/ProjectAssignments';
         }
 
-        if ('#/definitions/InvoiceBasedOnTrackedTimeAndExpenses' === $result) {
-            $result = '#/definitions/Invoice';
+        if ('#/components/schemas/InvoiceBasedOnTrackedTimeAndExpenses' === $result) {
+            $result = '#/components/schemas/Invoice';
         }
 
         return $result;
@@ -793,7 +835,7 @@ class Extractor
             if (\is_array($item)) {
                 $this->printUnknownDefinitions($item);
             } elseif ('$ref' === $key) {
-                $item = substr($item, 14);
+                $item = substr($item, 21);
 
                 if (!isset($this->definitions[$item]) && 'Error' !== $item) {
                     throw new \LogicException(sprintf('Unknown definition: %s', $item));
@@ -828,59 +870,22 @@ class Extractor
     {
         foreach ($this->definitions as $definitionName => $definition) {
             foreach ($definition['properties'] as $propertyName => $property) {
-                if (isset($property['arrayof'])) {
-                    if (isset($this->definitions[$property['arrayof']])) {
-                        $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['$ref' => '#/definitions/'.$property['arrayof']];
-                    } elseif (\in_array($property['arrayof'], self::BASE_TYPES, true)) {
-                        $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['type' => $property['arrayof']];
+                if (isset($property['items']) && isset($property['items']['type'])) {
+                    if (isset($this->definitions[$property['items']['type']])) {
+                        $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['$ref' => '#/components/schemas/'.$property['items']['type']];
+                    } elseif (\in_array($property['items']['type'], self::BASE_TYPES, true)) {
+                        $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['type' => $property['items']['type']];
                     } else {
-                        echo $property['arrayof']."\n";
+                        echo $property['items']['type']."\n";
                     }
-
-                    unset($this->definitions[$definitionName]['properties'][$propertyName]['arrayof']);
                 }
 
                 if (isset($property['objectoftype'])) {
                     if (isset($this->definitions[$property['objectoftype']])) {
-                        $this->definitions[$definitionName]['properties'][$propertyName]['$ref'] = '#/definitions/'.$property['objectoftype'];
+                        $this->definitions[$definitionName]['properties'][$propertyName]['$ref'] = '#/components/schemas/'.$property['objectoftype'];
                     }
 
                     unset($this->definitions[$definitionName]['properties'][$propertyName]['objectoftype']);
-                }
-            }
-        }
-
-        foreach ($this->paths as $pathName => $path) {
-            foreach ($path as $methodName => $method) {
-                foreach ($method['parameters'] as $id => $parameter) {
-                    if (isset($parameter['schema']) && isset($parameter['schema']['properties'])) {
-                        foreach ($parameter['schema']['properties'] as $propertyName => $property) {
-                            if (isset($property['arrayof'])) {
-                                if (isset($this->definitions[$property['arrayof']])) {
-                                    $this->paths[$pathName][$methodName]['parameters'][$id]['schema']['properties'][$propertyName]['items'] = ['$ref' => '#/definitions/'.$property['arrayof']];
-                                } elseif (\in_array($property['arrayof'], self::BASE_TYPES, true)) {
-                                    $this->paths[$pathName][$methodName]['parameters'][$id]['schema']['properties'][$propertyName]['items'] = ['type' => $property['arrayof']];
-                                } else {
-                                    echo sprintf(
-                                        "%s %s - %s\n",
-                                        $methodName,
-                                        $pathName,
-                                        $property['arrayof']
-                                    );
-                                }
-
-                                unset($this->paths[$pathName][$methodName]['parameters'][$id]['schema']['properties'][$propertyName]['arrayof']);
-                            }
-
-                            if (isset($property['objectoftype'])) {
-                                if (isset($this->definitions[$property['objectoftype']])) {
-                                    $this->paths[$pathName][$methodName]['parameters'][$id]['schema']['properties'][$propertyName]['$ref'] = '#/definitions/'.$property['objectoftype'];
-                                }
-
-                                unset($this->paths[$pathName][$methodName]['parameters'][$id]['schema']['properties'][$propertyName]['objectoftype']);
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -906,7 +911,7 @@ class Extractor
                     $pluralized => [
                         'type' => 'array',
                         'items' => [
-                            '$ref' => '#/definitions/'.$name,
+                            '$ref' => '#/components/schemas/'.$name,
                         ],
                     ],
                     'per_page' => [
@@ -924,17 +929,19 @@ class Extractor
                     'next_page' => [
                         'type' => 'integer',
                         'format' => 'int64',
+                        'nullable' => true,
                     ],
                     'previous_page' => [
                         'type' => 'integer',
                         'format' => 'int64',
+                        'nullable' => true,
                     ],
                     'page' => [
                         'type' => 'integer',
                         'format' => 'int64',
                     ],
                     'links' => [
-                        '$ref' => '#/definitions/PaginationLinks',
+                        '$ref' => '#/components/schemas/PaginationLinks',
                     ],
                 ],
             ];
@@ -1008,19 +1015,16 @@ class Extractor
                     $this->paths[$path][$method] = $operation;
                 } else {
                     // add possible additionnal body parameters
-                    $bodyParams = array_filter($operation['parameters'], function ($item) {
-                        return 'body' === $item['in'];
-                    });
-                    if (\count($bodyParams) > 0) {
-                        foreach ($this->paths[$path][$method]['parameters'] as $key => $parameter) {
-                            if ('body' === $parameter['in']) {
-                                $this->paths[$path][$method]['parameters'][$key]['schema']['properties'] = array_merge(
-                                    array_shift($bodyParams)['schema']['properties'],
-                                    $this->paths[$path][$method]['parameters'][$key]['schema']['properties']
-                                );
-
-                                return;
-                            }
+                    // this happens to be useful for several api documented
+                    // calls to the same endpoint, but with different parameters...
+                    if (isset($operation['requestBody'])) {
+                        if (isset($this->paths[$path][$method]['requestBody'])) {
+                            $this->paths[$path][$method]['requestBody']['content']['application/json']['schema']['properties'] = array_merge(
+                                $operation['requestBody']['content']['application/json']['schema']['properties'],
+                                $this->paths[$path][$method]['requestBody']['content']['application/json']['schema']['properties']
+                            );
+                        } else {
+                            $this->paths[$path][$method]['requestBody'] = $operation['requestBody'];
                         }
                     }
                 }
