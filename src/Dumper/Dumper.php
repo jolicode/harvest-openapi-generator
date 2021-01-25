@@ -24,8 +24,8 @@ class Dumper
 
     public function dump(array $data): array
     {
-        $baseData = [
-            'swagger' => '2.0',
+        $data = [
+            'openapi' => '3.0.1',
             'info' => [
                 'version' => '1.0.0',
                 'title' => 'Harvestapp API',
@@ -35,20 +35,23 @@ class Dumper
                 'description' => 'Learn more about the Harvest Web API',
                 'url' => 'https://help.getharvest.com/api-v2/',
             ],
-            'host' => 'api.harvestapp.com',
-            'basePath' => '/v2',
-            'schemes' => ['https'],
-            'securityDefinitions' => [
-                'BearerAuth' => [
-                    'type' => 'apiKey',
-                    'in' => 'header',
-                    'name' => 'Authorization',
+            'servers' => [[
+                'url' => 'https://api.harvestapp.com/v2',
+            ]],
+            'components' => [
+                'securitySchemes' => [
+                    'BearerAuth' => [
+                        'type' => 'apiKey',
+                        'in' => 'header',
+                        'name' => 'Authorization',
+                    ],
+                    'AccountAuth' => [
+                        'type' => 'apiKey',
+                        'in' => 'header',
+                        'name' => 'Harvest-Account-Id',
+                    ],
                 ],
-                'AccountAuth' => [
-                    'type' => 'apiKey',
-                    'in' => 'header',
-                    'name' => 'Harvest-Account-Id',
-                ],
+                'schemas' => $data['schemas'],
             ],
             'security' => [
                 [
@@ -56,60 +59,82 @@ class Dumper
                     'AccountAuth' => [],
                 ],
             ],
-            'paths' => new \stdClass(),
-            'definitions' => new \stdClass(),
+            'paths' => $data['paths'],
         ];
-
-        $data['definitions']['Error'] = [
-            'type' => 'object',
-            'properties' => [
-                'code' => [
-                    'type' => 'integer',
-                ],
-                'message' => [
-                    'type' => 'string',
-                ],
-            ],
-        ];
-        $data['definitions']['PaginationLinks'] = [
-            'type' => 'object',
-            'required' => ['first', 'last'],
-            'properties' => [
-                'first' => [
-                    'type' => 'string',
-                    'format' => 'url',
-                    'description' => 'First page',
-                ],
-                'last' => [
-                    'type' => 'string',
-                    'format' => 'url',
-                    'description' => 'Last page',
-                ],
-                'previous' => [
-                    'type' => 'string',
-                    'format' => 'url',
-                    'description' => 'Previous page',
-                ],
-                'next' => [
-                    'type' => 'string',
-                    'format' => 'url',
-                    'description' => 'Next page',
-                ],
-            ],
-        ];
-        $data = array_merge($baseData, $data);
         $definitionOverrides = [
+            'Error' => [
+                'type' => 'object',
+                'properties' => [
+                    'code' => [
+                        'type' => 'integer',
+                    ],
+                    'message' => [
+                        'type' => 'string',
+                    ],
+                ],
+            ],
             'Expense' => [
                 'properties' => [
                     'total_cost' => [
                         'type' => 'number',
                         'description' => 'The total amount of the expense.',
                         'format' => 'float',
+                        'nullable' => true,
                     ],
                     'units' => [
                         'type' => 'integer',
                         'description' => 'The quantity of units to use in calculating the total_cost of the expense.',
                         'format' => 'int32',
+                        'nullable' => true,
+                    ],
+                    'receipt' => [
+                        'properties' => [
+                            'file_size' => [
+                                'type' => 'integer',
+                                'format' => 'int32',
+                                'nullable' => true,
+                            ],
+                            'content_type' => [
+                                'type' => 'string',
+                                'nullable' => true,
+                            ],
+                        ]
+                    ]
+                ],
+            ],
+            'PaginationLinks' => [
+                'type' => 'object',
+                'required' => ['first', 'last'],
+                'properties' => [
+                    'first' => [
+                        'type' => 'string',
+                        'format' => 'url',
+                        'description' => 'First page',
+                    ],
+                    'last' => [
+                        'type' => 'string',
+                        'format' => 'url',
+                        'description' => 'Last page',
+                    ],
+                    'previous' => [
+                        'type' => 'string',
+                        'format' => 'url',
+                        'description' => 'Previous page',
+                        'nullable' => true,
+                    ],
+                    'next' => [
+                        'type' => 'string',
+                        'format' => 'url',
+                        'description' => 'Next page',
+                        'nullable' => true,
+                    ],
+                ],
+            ],
+            'User' => [
+                'properties' => [
+                    'telephone' => [
+                        'type' => 'string',
+                        'nullable' => true,
                     ],
                 ],
             ],
@@ -117,23 +142,52 @@ class Dumper
         $warnings = [];
 
         foreach ($definitionOverrides as $definition => $override) {
-            if (isset($override['properties'])) {
-                foreach ($override['properties'] as $propertyName => $propertyOverride) {
-                    if (isset($data['definitions'][$definition])
-                        && isset($data['definitions'][$definition]['properties'][$propertyName])) {
-                        $warnings[] = sprintf(
+            if (isset($data['components']['schemas'][$definition])) {
+                if (isset($override['properties'])) {
+                    foreach ($override['properties'] as $propertyName => $propertyOverride) {
+                        if (
+                            isset($data['components']['schemas'][$definition]['properties'])
+                            && isset($data['components']['schemas'][$definition]['properties'][$propertyName])
+                        ) {
+                            $warnings[] = sprintf(
                                 'The property "%s" of the definition "%s" already exists and has been overriden.',
                                 $propertyName,
                                 $definition
                             );
-                    }
 
-                    $data['definitions'][$definition]['properties'][$propertyName] = $propertyOverride;
+                            if (
+                                isset($data['components']['schemas'][$definition]['properties'][$propertyName]['properties'])
+                                && isset($propertyOverride['properties'])
+                            ) {
+                                $data['components']['schemas'][$definition]['properties'][$propertyName]['properties'] = array_merge(
+                                    $data['components']['schemas'][$definition]['properties'][$propertyName]['properties'],
+                                    $propertyOverride['properties']
+                                );
+                                unset($propertyOverride['properties']);
+                            }
+
+                            $data['components']['schemas'][$definition]['properties'][$propertyName] = array_merge(
+                                $data['components']['schemas'][$definition]['properties'][$propertyName],
+                                $propertyOverride
+                            );
+                        } else {
+                            $data['components']['schemas'][$definition]['properties'][$propertyName] = $propertyOverride;
+                        }
+                    }
                 }
+            } else {
+                $data['components']['schemas'][$definition] = $override;
             }
         }
 
-        file_put_contents($this->target, Yaml::dump($data, 20, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE));
+        file_put_contents(
+            $this->target,
+            preg_replace(
+                '#!!float (\d+)#',
+                '\1.0',
+                Yaml::dump($data, 20, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE)
+            )
+        );
 
         return $warnings;
     }
