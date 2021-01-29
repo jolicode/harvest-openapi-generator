@@ -130,14 +130,6 @@ class Dumper
                     ],
                 ],
             ],
-            'User' => [
-                'properties' => [
-                    'telephone' => [
-                        'type' => 'string',
-                        'nullable' => true,
-                    ],
-                ],
-            ],
         ];
         $warnings = [];
 
