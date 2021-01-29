@@ -450,11 +450,11 @@ class Extractor
         ];
         $pathParametersData = self::buildPathParameters($method, $path, $pathParameters, $explicitParameters, $explicitParametersColumns);
 
-        if (count($pathParametersData)) {
+        if (\count($pathParametersData)) {
             $pathData['parameters'] = $pathParametersData;
         }
 
-        if (\in_array($method, ['patch', 'post'], true) && count($explicitParameters) > 0) {
+        if (\in_array($method, ['patch', 'post'], true) && \count($explicitParameters) > 0) {
             $pathData['requestBody'] = self::buildRequestBody($method, $path, $explicitParameters, $explicitParametersColumns);
         }
 
@@ -591,7 +591,7 @@ class Extractor
             $successResponseContent['example'] = $example;
         }
 
-        if (count($successResponseContent) > 0) {
+        if (\count($successResponseContent) > 0) {
             $successResponse['content'] = [
                 'application/json' => $successResponseContent,
             ];

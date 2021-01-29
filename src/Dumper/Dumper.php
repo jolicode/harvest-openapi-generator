@@ -98,8 +98,8 @@ class Dumper
                                 'type' => 'string',
                                 'nullable' => true,
                             ],
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
             ],
             'PaginationLinks' => [
@@ -126,14 +126,6 @@ class Dumper
                         'type' => 'string',
                         'format' => 'url',
                         'description' => 'Next page',
-                        'nullable' => true,
-                    ],
-                ],
-            ],
-            'User' => [
-                'properties' => [
-                    'telephone' => [
-                        'type' => 'string',
                         'nullable' => true,
                     ],
                 ],
