@@ -98,8 +98,8 @@ class Dumper
                                 'type' => 'string',
                                 'nullable' => true,
                             ],
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
             ],
             'PaginationLinks' => [
