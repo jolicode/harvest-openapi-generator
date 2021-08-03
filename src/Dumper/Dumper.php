@@ -75,18 +75,6 @@ class Dumper
             ],
             'Expense' => [
                 'properties' => [
-                    'total_cost' => [
-                        'type' => 'number',
-                        'description' => 'The total amount of the expense.',
-                        'format' => 'float',
-                        'nullable' => true,
-                    ],
-                    'units' => [
-                        'type' => 'integer',
-                        'description' => 'The quantity of units to use in calculating the total_cost of the expense.',
-                        'format' => 'int32',
-                        'nullable' => true,
-                    ],
                     'receipt' => [
                         'properties' => [
                             'file_size' => [
