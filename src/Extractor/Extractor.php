@@ -969,7 +969,7 @@ class Extractor
     {
         $crawler = new Crawler($this->download($url));
 
-        $title = trim($crawler->filter('h1')->text());
+        $title = trim($crawler->filter('article h1')->text());
 
         if (preg_match('/^([a-zA-Z ]+) Report(s)?/', $title)) {
             $title = self::camelize($title);
