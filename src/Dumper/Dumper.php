@@ -118,6 +118,20 @@ class Dumper
                     ],
                 ],
             ],
+            'User' => [
+                'properties' => [
+                    'is_admin' => [
+                        'type' => 'boolean',
+                        'description' => 'Whether the user has Admin permissions.',
+                        'nullable' => true,
+                    ],
+                    'is_project_manager' => [
+                        'type' => 'boolean',
+                        'description' => 'Whether the user has Project Manager permissions.',
+                        'nullable' => true,
+                    ],
+                ],
+            ],
         ];
         $warnings = [];
 
