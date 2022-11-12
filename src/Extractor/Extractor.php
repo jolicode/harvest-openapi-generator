@@ -689,6 +689,10 @@ class Extractor
     public static function guessPathResponseSchema($summary, $title)
     {
         $guesser = function ($summary) use ($title) {
+            if ('Update a user’s assigned teammates' === $summary) {
+                return '#/components/schemas/TeammatesPatchResponse';
+            }
+
             if (preg_match('/^Create an? ([a-zA-Z ]+)/', $summary, $matches)) {
                 return '#/components/schemas/'.self::camelize($matches[1]);
             }
@@ -841,7 +845,7 @@ class Extractor
             } elseif ('$ref' === $key) {
                 $item = substr($item, 21);
 
-                if (!isset($this->definitions[$item]) && !\in_array($item, ['Error', 'InvoiceMessageSubjectAndBody'], true)) {
+                if (!isset($this->definitions[$item]) && !\in_array($item, ['Error', 'InvoiceMessageSubjectAndBody', 'TeammatesPatchResponse'], true)) {
                     throw new \LogicException(sprintf('Unknown definition: %s', $item));
                 }
             }
