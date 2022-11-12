@@ -90,6 +90,28 @@ class Dumper
                     ],
                 ],
             ],
+            'InvoiceMessageSubjectAndBody' => [
+                'type' => 'object',
+                'required' => ['invoice_id', 'subject', 'body', 'reminder', 'thank_you'],
+                'properties' => [
+                    'invoice_id' => [
+                        'type' => 'integer',
+                        'format' => 'int32',
+                    ],
+                    'subject' => [
+                        'type' => 'string',
+                    ],
+                    'body' => [
+                        'type' => 'string',
+                    ],
+                    'reminder' => [
+                        'type' => 'boolean',
+                    ],
+                    'thank_you' => [
+                        'type' => 'boolean',
+                    ],
+                ],
+            ],
             'PaginationLinks' => [
                 'type' => 'object',
                 'required' => ['first', 'last'],

@@ -725,6 +725,10 @@ class Extractor
                 return '#/components/schemas/User';
             }
 
+            if ('Retrieve invoice message subject and body for specific invoice' === $summary) {
+                return '#/components/schemas/InvoiceMessageSubjectAndBody';
+            }
+
             return null;
         };
 
@@ -837,7 +841,7 @@ class Extractor
             } elseif ('$ref' === $key) {
                 $item = substr($item, 21);
 
-                if (!isset($this->definitions[$item]) && 'Error' !== $item) {
+                if (!isset($this->definitions[$item]) && !\in_array($item, ['Error', 'InvoiceMessageSubjectAndBody'], true)) {
                     throw new \LogicException(sprintf('Unknown definition: %s', $item));
                 }
             }
