@@ -1436,7 +1436,7 @@ components:
           nullable: true
         billable:
           type: boolean
-          description: 'Whether the task assignment is billable or not.  For example: if set to true, all time tracked on this project for the associated task will be marked as billable.'
+          description: 'Whether the task assignment is billable or not. For example: if set to true, all time tracked on this project for the associated task will be marked as billable.'
           nullable: true
         hourly_rate:
           type: number
@@ -3384,7 +3384,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 100)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 100)'
           required: false
           in: query
           schema:
@@ -5488,7 +5488,7 @@ paths:
               properties:
                 user_id:
                   type: integer
-                  description: 'The ID of the user associated with this expense.  Defaults to the ID of the currently authenticated user.'
+                  description: 'The ID of the user associated with this expense. Defaults to the ID of the currently authenticated user.'
                   nullable: true
                   format: int32
                 project_id:
@@ -8571,7 +8571,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -8650,7 +8650,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -8733,7 +8733,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -8821,7 +8821,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -8896,7 +8896,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -8984,7 +8984,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -9078,7 +9078,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -9180,7 +9180,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -9271,7 +9271,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -9368,7 +9368,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 1000)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 1000)'
           required: false
           in: query
           schema:
@@ -9490,7 +9490,7 @@ paths:
               properties:
                 name:
                   type: string
-                  description: 'The  name of the role.'
+                  description: 'The name of the role.'
                   nullable: true
                 user_ids:
                   type: array
@@ -9616,7 +9616,7 @@ paths:
               properties:
                 name:
                   type: string
-                  description: 'The  name of the role.'
+                  description: 'The name of the role.'
                   nullable: true
                 user_ids:
                   type: array
@@ -9866,7 +9866,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 100)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 100)'
           required: false
           in: query
           schema:
@@ -11265,7 +11265,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 100)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 100)'
           required: false
           in: query
           schema:
@@ -12484,7 +12484,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 100)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 100)'
           required: false
           in: query
           schema:
@@ -12553,7 +12553,7 @@ paths:
             type: integer
         -
           name: per_page
-          description: 'The number of records to return per page. Can range between 1 and 2000.  (Default: 100)'
+          description: 'The number of records to return per page. Can range between 1 and 2000. (Default: 100)'
           required: false
           in: query
           schema:

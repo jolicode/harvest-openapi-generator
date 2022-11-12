@@ -41,5 +41,7 @@ class GenerateCommand extends Command
             $formatter = $this->getHelper('formatter');
             $output->writeln($formatter->formatBlock($warnings, 'bg=yellow;fg=black', true));
         }
+
+        return Command::SUCCESS;
     }
 }
