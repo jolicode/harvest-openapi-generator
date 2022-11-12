@@ -15,8 +15,8 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class Extractor
 {
-    const BASE_TYPES = ['integer', 'string'];
-    const DOMAIN = 'https://help.getharvest.com';
+    public const BASE_TYPES = ['integer', 'string'];
+    public const DOMAIN = 'https://help.getharvest.com';
     private $definitions = [];
     private $paths = [];
 
@@ -40,7 +40,7 @@ class Extractor
 
             return $path;
         },
-        $this->paths);
+            $this->paths);
         ksort($this->paths);
 
         $this->printUnknownDefinitions($this->paths);
@@ -381,7 +381,7 @@ class Extractor
     public static function buildPath($url, $path, $method, $node, $title)
     {
         $description = [];
-        $parentNode = $node->parents()->filter('.highlighter-rouge')->first();
+        $parentNode = $node->ancestors()->filter('.highlighter-rouge')->first();
 
         foreach ($parentNode->previousAll() as $previous) {
             if ('h2' === $previous->tagName) {
