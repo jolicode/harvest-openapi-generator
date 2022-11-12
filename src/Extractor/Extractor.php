@@ -701,7 +701,7 @@ class Extractor
                 return '#/components/schemas/'.self::camelize($matches[1]);
             }
 
-            if (preg_match('/^List (?:all|active) ([a-zA-Z ]+) for an? ([a-zA-Z]+)/', $summary, $matches)) {
+            if (preg_match('/^List (?:all assigned|all|active) ([a-zA-Z ]+) for an? ([a-zA-Z]+)/', $summary, $matches)) {
                 if ('specific' === $matches[2]) {
                     return '#/components/schemas/'.self::camelize($matches[1]);
                 }
