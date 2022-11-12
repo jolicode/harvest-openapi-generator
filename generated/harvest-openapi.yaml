@@ -3319,6 +3319,15 @@ components:
           format: url
           description: 'Next page'
           nullable: true
+    TeammatesPatchResponse:
+      type: object
+      required:
+        - teammates
+      properties:
+        teammates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Teammate'
 security:
   -
     BearerAuth: []
@@ -12597,7 +12606,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/TeammatesPatchResponse'
               example:
                 teammates:
                   -

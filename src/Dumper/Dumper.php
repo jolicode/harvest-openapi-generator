@@ -140,6 +140,18 @@ class Dumper
                     ],
                 ],
             ],
+            'TeammatesPatchResponse' => [
+                'type' => 'object',
+                'required' => ['teammates'],
+                'properties' => [
+                    'teammates' => [
+                        'type' => 'array',
+                        'items' => [
+                            '$ref' => '#/components/schemas/Teammate',
+                        ],
+                    ],
+                ],
+            ],
         ];
         $warnings = [];
 
