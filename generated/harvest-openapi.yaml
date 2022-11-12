@@ -3275,6 +3275,26 @@ components:
           type: integer
         message:
           type: string
+    InvoiceMessageSubjectAndBody:
+      type: object
+      required:
+        - invoice_id
+        - subject
+        - body
+        - reminder
+        - thank_you
+      properties:
+        invoice_id:
+          type: integer
+          format: int32
+        subject:
+          type: string
+        body:
+          type: string
+        reminder:
+          type: boolean
+        thank_you:
+          type: boolean
     PaginationLinks:
       type: object
       required:
@@ -6968,6 +6988,8 @@ paths:
           description: 'Retrieve invoice message subject and body for specific invoice'
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceMessageSubjectAndBody'
               example:
                 invoice_id: 13150403
                 subject: 'Past due invoice reminder: #1002 from API Examples'
