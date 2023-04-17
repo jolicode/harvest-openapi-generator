@@ -478,6 +478,10 @@ class Extractor
                 }
 
                 $parameters[] = self::buildPathQueryParameter($parameter, $type, $description, $required);
+
+                if ('page' === $parameter && str_starts_with($description, 'DEPRECATED')) {
+                    $parameters[] = self::buildPathQueryParameter('cursor', 'string', 'Pagination cursor', false);
+                }
             }
         }
 
@@ -540,7 +544,7 @@ class Extractor
 
     public static function buildPathQueryParameter($name, $type, $description, $required)
     {
-        return [
+        $pathQueryParameter = [
             'name' => $name,
             'description' => $description,
             'required' => ('required' === $required),
@@ -549,6 +553,12 @@ class Extractor
                 'type' => self::convertType($type),
             ],
         ];
+
+        if (str_starts_with($description, 'DEPRECATED')) {
+            $pathQueryParameter['deprecated'] = true;
+        }
+
+        return $pathQueryParameter;
     }
 
     public static function buildOperationId($path, $method, $summary)
