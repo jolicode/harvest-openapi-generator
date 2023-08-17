@@ -101,8 +101,21 @@ class Extractor
             $arrayof = 'string';
         }
 
+        if ('array of user ids' === $type) {
+            $arrayof = 'string';
+        }
+
         if (null !== $arrayof) {
             $property['items'] = ['type' => $arrayof];
+        } else if ('array' === $type && 'payment_options' === $name) {
+            $property['items'] = [
+                'type' => 'string',
+                'enum' => [
+                    'ach',
+                    'credit_card',
+                    'paypal',
+                ],
+            ];
         }
 
         if ('Array of recipient parameters. See below for details.' === $description) {
@@ -375,6 +388,10 @@ class Extractor
             }
         }
 
+        if (str_starts_with($description, 'DEPRECATED')) {
+            $property['deprecated'] = true;
+        }
+
         return $property;
     }
 
@@ -632,7 +649,9 @@ class Extractor
     public static function convertType($type)
     {
         $conversionMap = [
+            'bigint' => 'integer',
             'file' => 'string',
+            'int' => 'integer',
             'long' => 'integer',
             'decimal' => 'number',
             'float' => 'number',
@@ -643,6 +662,7 @@ class Extractor
             'dateTime' => 'string',
             'array of integers' => 'array',
             'array of strings' => 'array',
+            'array of user ids' => 'array',
         ];
 
         return isset($conversionMap[$type]) ? $conversionMap[$type] : $type;
@@ -891,9 +911,7 @@ class Extractor
                 if (isset($property['items']) && isset($property['items']['type'])) {
                     if (isset($this->definitions[$property['items']['type']])) {
                         $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['$ref' => '#/components/schemas/'.$property['items']['type']];
-                    } elseif (\in_array($property['items']['type'], self::BASE_TYPES, true)) {
-                        $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['type' => $property['items']['type']];
-                    } else {
+                    } else if (!\in_array($property['items']['type'], self::BASE_TYPES, true)) {
                         echo $property['items']['type']."\n";
                     }
                 }
