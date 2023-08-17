@@ -519,8 +519,16 @@ class Extractor
                 $$columnName = array_shift($explicitParameters);
             }
 
-            if (isset($required) && 'required' === $required) {
-                $requiredProperties[] = $parameter;
+            if (isset($required)) {
+                if ('*optional' === $required) {
+                    $required = 'optional';
+                }
+
+                if ('required' === $required) {
+                    $requiredProperties[] = $parameter;
+                } else if (!\in_array($required, ['optional', 'required'])) {
+                    $description = $required;
+                }
             }
 
             $property = self::buildDefinitionProperty($parameter, $type, $description, $path, $method);

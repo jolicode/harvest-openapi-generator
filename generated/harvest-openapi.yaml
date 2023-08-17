@@ -6446,7 +6446,7 @@ paths:
                   nullable: true
                 payment_options:
                   type: array
-                  description: "\_"
+                  description: 'The payment options available to pay the invoice. Your account must be configured with the appropriate options under Settings > Integrations > Online payment to assign them. Options: [ach, credit_card, paypal]'
                   nullable: true
                   items:
                     type: string
