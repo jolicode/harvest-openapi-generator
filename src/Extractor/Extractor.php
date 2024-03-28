@@ -107,7 +107,7 @@ class Extractor
 
         if (null !== $arrayof) {
             $property['items'] = ['type' => $arrayof];
-        } else if ('array' === $type && 'payment_options' === $name) {
+        } elseif ('array' === $type && 'payment_options' === $name) {
             $property['items'] = [
                 'type' => 'string',
                 'enum' => [
@@ -399,6 +399,8 @@ class Extractor
     {
         $description = [];
         $parentNode = $node->ancestors()->filter('.highlighter-rouge')->first();
+        $summary = '';
+        $summaryId = '';
 
         foreach ($parentNode->previousAll() as $previous) {
             if ('h2' === $previous->tagName) {
@@ -442,6 +444,7 @@ class Extractor
             }
 
             if ('figure' === $next->tagName) {
+                $next = self::decodeEmailAddresses($next);
                 $example = $next->textContent;
                 break;
             }
@@ -526,7 +529,7 @@ class Extractor
 
                 if ('required' === $required) {
                     $requiredProperties[] = $parameter;
-                } else if (!\in_array($required, ['optional', 'required'])) {
+                } elseif (!\in_array($required, ['optional', 'required'], true)) {
                     $description = $required;
                 }
             }
@@ -801,7 +804,7 @@ class Extractor
 
     public static function guessPathResponseStatus($method, $summary)
     {
-        if (0 === strpos($summary, 'Create a')) {
+        if (str_starts_with($summary, 'Create a')) {
             return 201;
         }
 
@@ -870,7 +873,7 @@ class Extractor
             echo " * $family\n";
 
             foreach ($familyOperations as $operation) {
-                echo "   * $operation\n";
+                echo "   * `$operation()`\n";
             }
         }
     }
@@ -912,6 +915,43 @@ class Extractor
         return isset($summaries[$summary]) ? $summaries[$summary] : $summary;
     }
 
+    private static function getPower(string $email, int $position): int
+    {
+        $char = substr($email, $position, 2);
+
+        return \intval($char, 16);
+    }
+
+    private static function decodeEmailAddress(string $email): string
+    {
+        $output = '';
+        $power = self::getPower($email, 0);
+        $i = 2;
+
+        while ($i < \strlen($email)) {
+            $char = self::getPower($email, $i) ^ $power;
+            $output .= \chr($char);
+            $i += 2;
+        }
+
+        return $output;
+    }
+
+    private static function decodeEmailAddresses(\DOMElement $next)
+    {
+        foreach ($next->childNodes as $child) {
+            if ($child instanceof \DOMElement) {
+                if ('a' === $child->tagName && $child->hasAttribute('data-cfemail')) {
+                    $child->textContent = self::decodeEmailAddress($child->getAttribute('data-cfemail'));
+                }
+
+                $child = self::decodeEmailAddresses($child);
+            }
+        }
+
+        return $next;
+    }
+
     private function buildItemsTypes()
     {
         foreach ($this->definitions as $definitionName => $definition) {
@@ -919,7 +959,7 @@ class Extractor
                 if (isset($property['items']) && isset($property['items']['type'])) {
                     if (isset($this->definitions[$property['items']['type']])) {
                         $this->definitions[$definitionName]['properties'][$propertyName]['items'] = ['$ref' => '#/components/schemas/'.$property['items']['type']];
-                    } else if (!\in_array($property['items']['type'], self::BASE_TYPES, true)) {
+                    } elseif (!\in_array($property['items']['type'], self::BASE_TYPES, true)) {
                         echo $property['items']['type']."\n";
                     }
                 }
