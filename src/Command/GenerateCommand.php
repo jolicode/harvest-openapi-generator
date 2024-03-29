@@ -19,25 +19,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateCommand extends Command
 {
-    /**
-     * {@inheritdoc}
-     */
     public function configure()
     {
         $this->setName('generate');
         $this->setDescription('Generate a Harvest\'s swagger.yaml definition.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $extractor = new Extractor();
         $dumper = new Dumper(__DIR__.'/../../generated/harvest-openapi.yaml');
         $warnings = $dumper->dump($extractor->extract());
 
         if (\count($warnings) > 0) {
+            /** @var \Symfony\Component\Console\Helper\FormatterHelper */
             $formatter = $this->getHelper('formatter');
             $output->writeln($formatter->formatBlock($warnings, 'bg=yellow;fg=black', true));
         }
