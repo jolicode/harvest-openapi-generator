@@ -118,7 +118,7 @@ class Extractor
             ];
         }
 
-        if ('Array of recipient parameters. See below for details.' === $description) {
+        if ('Array of recipient parameters. See below for details.' === $description || 'Array of recipient parameters. See below for more details.' === $description) {
             $property['items'] = [
                 'type' => 'object',
                 'required' => [
@@ -774,6 +774,10 @@ class Extractor
                 return '#/components/schemas/InvoiceMessageSubjectAndBody';
             }
 
+            if ('Create and send an invoice message' === $summary) {
+                return '#/components/schemas/InvoiceMessage';
+            }
+
             return null;
         };
 
@@ -887,7 +891,7 @@ class Extractor
                 $item = substr($item, 21);
 
                 if (!isset($this->definitions[$item]) && !\in_array($item, ['Error', 'InvoiceMessageSubjectAndBody', 'TeammatesPatchResponse'], true)) {
-                    throw new \LogicException(sprintf('Unknown definition: %s', $item));
+                    throw new \LogicException(\sprintf('Unknown definition: %s', $item));
                 }
             }
         }
@@ -898,6 +902,7 @@ class Extractor
         $conversionMap = [
             'createFreeFormInvoice' => 'createInvoice',
             'createTimeEntryViaDuration' => 'createTimeEntry',
+            'createAndSendInvoiceMessage' => 'createInvoiceMessage',
         ];
 
         return isset($conversionMap[$operationId]) ? $conversionMap[$operationId] : $operationId;
