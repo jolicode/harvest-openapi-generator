@@ -163,7 +163,7 @@ class Dumper
                             isset($data['components']['schemas'][$definition]['properties'])
                             && isset($data['components']['schemas'][$definition]['properties'][$propertyName])
                         ) {
-                            $warnings[] = sprintf(
+                            $warnings[] = \sprintf(
                                 'The property "%s" of the definition "%s" already exists and has been overriden.',
                                 $propertyName,
                                 $definition
