@@ -971,7 +971,20 @@ class Extractor
 
                 if (isset($property['objectoftype'])) {
                     if (isset($this->definitions[$property['objectoftype']])) {
-                        $this->definitions[$definitionName]['properties'][$propertyName]['$ref'] = '#/components/schemas/'.$property['objectoftype'];
+                        if (isset($property['nullable']) && true === $property['nullable']) {
+                            unset($this->definitions[$definitionName]['properties'][$propertyName]['type']);
+                            $this->definitions[$definitionName]['properties'][$propertyName]['anyOf'] = [
+                                [
+                                    'type' => 'object',
+                                    '$ref' => '#/components/schemas/'.$property['objectoftype'],
+                                ],
+                                [
+                                    'type' => 'null',
+                                ],
+                            ];
+                        } else {
+                            $this->definitions[$definitionName]['properties'][$propertyName]['$ref'] = '#/components/schemas/'.$property['objectoftype'];
+                        }
                     }
 
                     unset($this->definitions[$definitionName]['properties'][$propertyName]['objectoftype']);
