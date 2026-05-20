@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateCommand extends Command
 {
-    public function configure()
+    public function configure(): void
     {
         $this->setName('generate');
         $this->setDescription('Generate a Harvest\'s swagger.yaml definition.');
