@@ -6,6 +6,6 @@ use Symfony\Component\Console\Application;
 use JoliCode\Extractor\Command\GenerateCommand;
 
 $application = new Application();
-$application->add(new GenerateCommand());
+$application->addCommand(new GenerateCommand());
 
 $application->run();

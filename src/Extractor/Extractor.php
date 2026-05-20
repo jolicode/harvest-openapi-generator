@@ -35,7 +35,7 @@ class Extractor
         $this->buildPluralDefinitions();
         $this->buildItemsTypes();
 
-        $this->paths = array_map(function ($path) {
+        $this->paths = array_map(static function ($path) {
             ksort($path);
 
             return $path;
@@ -373,7 +373,7 @@ class Extractor
             } elseif (preg_match('/(?:([a-zA-Z_]+), )+([a-zA-Z_]+)/', $desc, $matches)) {
                 $matches = explode(', ', $matches[0]);
                 $matches = array_flip(array_map('strtolower', $matches));
-                array_walk($matches, function (&$item, $key) use ($name) {
+                array_walk($matches, static function (&$item, $key) use ($name) {
                     $item = ['type' => self::guessFieldType($key, $name), 'nullable' => true];
                 });
 
@@ -425,12 +425,12 @@ class Extractor
         if ($properties && 'table' === $properties->getNode(0)->tagName) {
             $explicitParameters = $properties
                 ->filter('tbody tr td')
-                ->each(function (Crawler $node2, $i) {
+                ->each(static function (Crawler $node2, $i) {
                     return $node2->text();
                 });
             $explicitParametersColumns = $properties
                 ->filter('thead tr th')
-                ->each(function (Crawler $node2, $i) {
+                ->each(static function (Crawler $node2, $i) {
                     return strtolower($node2->text());
                 });
         }
@@ -729,7 +729,7 @@ class Extractor
 
     public static function guessPathResponseSchema($summary, $title)
     {
-        $guesser = function ($summary) use ($title) {
+        $guesser = static function ($summary) use ($title) {
             if ('Update a user’s assigned teammates' === $summary) {
                 return '#/components/schemas/TeammatesPatchResponse';
             }
@@ -857,7 +857,7 @@ class Extractor
         return substr($haystack, -$length) === $needle;
     }
 
-    private function printOperationsIdList()
+    private function printOperationsIdList(): void
     {
         $operations = [];
 
@@ -882,7 +882,7 @@ class Extractor
         }
     }
 
-    private function printUnknownDefinitions(array $items)
+    private function printUnknownDefinitions(array $items): void
     {
         foreach ($items as $key => $item) {
             if (\is_array($item)) {
@@ -957,7 +957,7 @@ class Extractor
         return $next;
     }
 
-    private function buildItemsTypes()
+    private function buildItemsTypes(): void
     {
         foreach ($this->definitions as $definitionName => $definition) {
             foreach ($definition['properties'] as $propertyName => $property) {
@@ -993,7 +993,7 @@ class Extractor
         }
     }
 
-    private function buildPluralDefinitions()
+    private function buildPluralDefinitions(): void
     {
         foreach ($this->definitions as $name => $definition) {
             $pluralized = self::pluralize(self::snakeCase($name));
@@ -1067,7 +1067,7 @@ class Extractor
         return file_get_contents($path);
     }
 
-    private function extractApiDoc($url)
+    private function extractApiDoc($url): void
     {
         $crawler = new Crawler($this->download($url));
 
@@ -1091,7 +1091,7 @@ class Extractor
                     'properties' => self::buildDefinitionProperties($node->nextAll()
                         ->first()
                         ->filter('tbody tr td')
-                        ->each(function (Crawler $node2, $i) {
+                        ->each(static function (Crawler $node2, $i) {
                             return $node2->text();
                         })),
                 ];
@@ -1103,7 +1103,7 @@ class Extractor
 
             if (preg_match('/^(GET|POST|PATCH|DELETE) \/v2(\/.*)/', $text, $matches)) {
                 $method = strtolower($matches[1]);
-                $path = preg_replace_callback('/{([a-zA-Z_]+)}/', function ($property) {
+                $path = preg_replace_callback('/{([a-zA-Z_]+)}/', static function ($property) {
                     return '{'.lcfirst(self::camelize($property[1])).'}';
                 }, $matches[2]);
 
